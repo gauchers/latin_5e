@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Bibliotheca — Les cours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
+    --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+    --umber:#2B1B12; --umber-light:#3E2A1C; --ink:#3A2A1F; --ink-soft:#7A6A56;
+    --radius:16px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--cream); position:relative; overflow-x:hidden;}
+  a{color:inherit;}
+  :focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px;}
+  button{font-family:var(--sans);}
+
+  .blob{position:absolute; border-radius:50%; z-index:0; pointer-events:none;}
+
+  .page{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 1.5rem 4rem;}
+
+  /* ---- top navigation ---- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:1.6rem 0 1rem;}
+  .back{display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.88rem; text-decoration:none; color:var(--ink-soft);}
+  .back svg{width:15px; height:15px; stroke:var(--ink-soft); fill:none;}
+  .back:hover{color:var(--brick);}
+  .tabs{display:flex; gap:0.4rem; background:var(--parch); padding:0.3rem; border-radius:999px;}
+  .tab{padding:0.45rem 1rem; border-radius:999px; text-decoration:none; font-size:0.82rem; font-weight:600; color:var(--ink-soft);}
+  .tab.active{background:var(--brick); color:var(--cream);}
+  .tab:not(.active):hover{color:var(--brick);}
+
+  header.hero{padding:1.5rem 0 2rem;}
+  .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.26em; color:var(--brick); text-transform:uppercase;}
+  h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2.4rem, 5.5vw, 3.3rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
+  p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
+
+  /* ---- séance chips ---- */
+  .seance-list{display:flex; flex-wrap:wrap; gap:0.6rem; margin:1.8rem 0 2rem;}
+  .seance-chip{
+    display:flex; align-items:center; gap:0.55rem;
+    background:var(--parch); border:2px solid transparent; border-radius:12px;
+    padding:0.7rem 1rem; cursor:pointer; text-align:left; min-width:210px; flex:1 1 210px;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .seance-chip:hover{transform:translateY(-2px);}
+  .seance-chip.active{border-color:var(--brick); background:var(--cream); box-shadow:0 8px 20px rgba(43,27,18,0.1);}
+  @media (prefers-reduced-motion:reduce){.seance-chip{transition:none;} .seance-chip:hover{transform:none;}}
+  .chip-num{
+    font-family:var(--serif); font-weight:700; font-size:1.1rem; color:var(--gold);
+    width:2rem; flex-shrink:0; text-align:center;
+  }
+  .seance-chip.active .chip-num{color:var(--brick);}
+  .chip-text{font-size:0.86rem; font-weight:600; color:var(--ink); line-height:1.3;}
+
+  /* ---- viewer ---- */
+  .viewer-panel{
+    background:var(--parch); border-radius:var(--radius); padding:1.4rem;
+    box-shadow:0 12px 30px rgba(43,27,18,0.1);
+  }
+  .viewer-head{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;}
+  .viewer-title{font-family:var(--serif); font-weight:700; font-size:1.4rem; color:var(--brick-dark); margin:0;}
+  .viewer-sub{font-size:0.85rem; color:var(--ink-soft); margin:0.2rem 0 0;}
+  .dl-btn{
+    display:inline-flex; align-items:center; gap:0.45rem; background:var(--brick); color:var(--cream);
+    text-decoration:none; font-weight:700; font-size:0.85rem; padding:0.65rem 1.1rem; border-radius:10px;
+    flex-shrink:0; white-space:nowrap;
+  }
+  .dl-btn svg{width:15px; height:15px; stroke:var(--cream); fill:none;}
+  .dl-btn:hover{background:var(--brick-dark);}
+
+  .frame-wrap{
+    background:var(--cream); border-radius:12px; overflow:hidden;
+    border:1px solid var(--parch-dark); position:relative;
+  }
+  .frame-wrap iframe{width:100%; height:68vh; min-height:420px; border:0; display:block; background:var(--cream);}
+  .fallback-note{font-size:0.8rem; color:var(--ink-soft); margin:0.7rem 0.2rem 0;}
+</style>
+</head>
+<body>
+
+  <div class="blob" style="width:340px;height:340px;top:-160px;right:-160px;background:var(--parch-dark);opacity:0.5;"></div>
+
+  <div class="page">
+    <div class="topbar">
+      <a class="back" href="index.html">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Atrium
+      </a>
+      <div class="tabs">
+        <a class="tab active" href="cours.html">Bibliotheca</a>
+        <a class="tab" href="documents.html">Tabularium</a>
+        <a class="tab" href="exercices.html">Palestra</a>
+      </div>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">La Bibliotheca</div>
+      <h1 class="title">Les cours</h1>
+      <p class="lede">Choisis une séance ci-dessous : le cours s'ouvre juste en dessous et tu peux faire défiler les pages comme un vrai document.</p>
+    </header>
+
+    <div class="seance-list" id="seance-list"></div>
+
+    <section class="viewer-panel">
+      <div class="viewer-head">
+        <div>
+          <p class="viewer-title" id="viewer-title">—</p>
+          <p class="viewer-sub" id="viewer-sub">—</p>
+        </div>
+        <a class="dl-btn" id="dl-link" href="#" download>
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 12l5 5 5-5M4 19.5c0 .8.7 1.5 1.5 1.5h13c.8 0 1.5-.7 1.5-1.5"/></svg>
+          Télécharger
+        </a>
+      </div>
+      <div class="frame-wrap">
+        <iframe id="pdf-frame" title="Cours en PDF"></iframe>
+      </div>
+      <p class="fallback-note">Le document ne s'affiche pas ? Clique sur « Télécharger » ci-dessus pour l'ouvrir directement.</p>
+    </section>
+  </div>
+
+<script>
+  // Chaque séance pointe vers un fichier PDF dans le dossier /pdfs/.
+  // Pour ajouter un cours : dépose le PDF dans /pdfs/ avec le nom indiqué ci-dessous.
+  const seances = [
+    { num: "I",   title: "Les origines : la famille indo-européenne", sub: "D'où vient le latin ?", file: "pdfs/seance-1.pdf" },
+    { num: "II",  title: "La naissance du latin à Rome",               sub: "Un petit dialecte du Latium", file: "pdfs/seance-2.pdf" },
+    { num: "III", title: "L'expansion du latin dans l'Empire",         sub: "Le latin conquiert l'Europe", file: "pdfs/seance-3.pdf" },
+    { num: "IV",  title: "Le latin, langue savante",                   sub: "Du Moyen Âge au néo-latin", file: "pdfs/seance-4.pdf" },
+    { num: "V",   title: "La naissance des langues vernaculaires",     sub: "Le latin donne naissance au français", file: "pdfs/seance-5.pdf" },
+    { num: "VI",  title: "Bilan : le latin aujourd'hui",                sub: "Ce qu'il reste du latin", file: "pdfs/seance-6.pdf" },
+  ];
+
+  const list = document.getElementById("seance-list");
+  const frame = document.getElementById("pdf-frame");
+  const dlLink = document.getElementById("dl-link");
+  const vTitle = document.getElementById("viewer-title");
+  const vSub = document.getElementById("viewer-sub");
+
+  function selectSeance(index){
+    const s = seances[index];
+    [...list.children].forEach((c, i) => c.classList.toggle("active", i === index));
+    vTitle.textContent = `${s.num}. ${s.title}`;
+    vSub.textContent = s.sub;
+    frame.src = s.file + "#toolbar=1&view=FitH";
+    dlLink.href = s.file;
+    dlLink.setAttribute("download", "");
+  }
+
+  seances.forEach((s, i) => {
+    const chip = document.createElement("button");
+    chip.className = "seance-chip";
+    chip.innerHTML = `<span class="chip-num">${s.num}</span><span class="chip-text">${s.title}</span>`;
+    chip.addEventListener("click", () => selectSeance(i));
+    list.appendChild(chip);
+  });
+
+  selectSeance(0);
+</script>
+
+</body>
+</html>
