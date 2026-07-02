@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Palestra — Exercices en ligne</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght=500;600;700&family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
@@ -38,11 +38,12 @@
   p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
 
   /* ---- challenge cards ---- */
-  .challenges{display:grid; grid-template-columns:repeat(3, 1fr); gap:1.3rem; margin:1.8rem 0 2.6rem;}
-  @media (max-width:820px){.challenges{grid-template-columns:1fr; max-width:26rem;}}
+  .challenges{display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin:1.8rem 0 2.6rem;}
+  @media (max-width:960px){.challenges{grid-template-columns:repeat(2, 1fr);}}
+  @media (max-width:540px){.challenges{grid-template-columns:1fr; max-width:26rem;}}
   .challenge{
-    background:var(--parch); border:2px solid transparent; border-radius:var(--radius); padding:1.5rem;
-    text-align:left; display:flex; flex-direction:column; gap:0.5rem;
+    background:var(--parch); border:2px solid transparent; border-radius:var(--radius); padding:1.2rem;
+    text-align:left; display:flex; flex-direction:column; gap:0.4rem;
     transition:border-color .15s ease, transform .15s ease;
   }
   .challenge:hover{transform:translateY(-3px);}
@@ -50,9 +51,9 @@
   @media (prefers-reduced-motion:reduce){.challenge{transition:none;} .challenge:hover{transform:none;}}
   .ch-num{font-family:var(--serif); font-weight:700; color:var(--gold); font-size:1.15rem;}
   .challenge.active .ch-num{color:var(--brick);}
-  .ch-title{font-family:var(--serif); font-weight:700; font-size:1.3rem; color:var(--umber); margin:0;}
-  .ch-desc{font-size:0.85rem; color:var(--ink-soft); margin:0; line-height:1.45;}
-  .ch-count{font-size:0.75rem; font-weight:700; color:var(--brick); letter-spacing:0.04em; text-transform:uppercase; margin-top:0.2rem;}
+  .ch-title{font-family:var(--serif); font-weight:700; font-size:1.2rem; color:var(--umber); margin:0;}
+  .ch-desc{font-size:0.8rem; color:var(--ink-soft); margin:0; line-height:1.45; flex-grow:1;}
+  .ch-count{font-size:0.72rem; font-weight:700; color:var(--brick); letter-spacing:0.04em; text-transform:uppercase; margin-top:0.2rem;}
 
   /* ---- quiz area ---- */
   .quiz-panel{background:var(--parch); border-radius:var(--radius); padding:1.8rem;box-shadow:0 12px 30px rgba(43,27,18,0.1);}
@@ -104,7 +105,7 @@
     <header class="hero">
       <div class="eyebrow">La Palestra</div>
       <h1 class="title">Exercices en ligne</h1>
-      <p class="lede">Trois épreuves pour t'entraîner. Choisis-en une, réponds, puis valide pour découvrir ton score immédiatement.</p>
+      <p class="lede">Quatre épreuves pour t'entraîner. Choisis-en une, réponds, puis valide pour découvrir ton score immédiatement.</p>
     </header>
 
     <div class="challenges" id="challenges"></div>
@@ -112,13 +113,13 @@
     <section class="quiz-panel">
       <div class="quiz-head">
         <div>
-          <p class="quiz-title" id="quiz-title">—</p>
-          <p class="quiz-sub" id="quiz-sub">—</p>
+          <p class="quiz-title" id="quiz-title">Sélectionne une épreuve</p>
+          <p class="quiz-sub" id="quiz-sub">Choisis un défi ci-dessus pour afficher les questions.</p>
         </div>
         <div id="score-pill">Score : <span id="score-value">0/0</span></div>
       </div>
       <div id="quiz-body"></div>
-      <div class="quiz-actions">
+      <div class="quiz-actions" id="quiz-actions" style="display:none;">
         <button class="btn primary" id="validate-btn">Valider mes réponses</button>
         <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer</button>
       </div>
@@ -131,24 +132,47 @@
       title: "Vocabulaire",
       sub: "Que signifient ces mots latins ?",
       questions: [
-        { q: "« aqua » signifie…", opts: ["l'eau", "le feu", "l'ami", "la nuit"], a: 0 },
-        { q: "« mater » signifie…", opts: ["le père", "la mère", "l'île", "l'ami"], a: 1 },
-        { q: "« pater » signifie…", opts: ["le père", "la mère", "la nuit", "l'eau"], a: 0 },
-        { q: "« insula » signifie…", opts: ["l'ami", "la mère", "l'île", "la nuit"], a: 2 },
-        { q: "« amicus » signifie…", opts: ["l'ami", "l'eau", "le père", "l'île"], a: 0 },
-        { q: "« nox » signifie…", opts: ["l'eau", "la nuit", "la mère", "l'ami"], a: 1 },
+        { q: "« aqua » signifie…", opts: ["l'eau", "le feu", "la terre", "le vent"], a: 0 },
+        { q: "« pater » signifie…", opts: ["le père", "le frère", "le fils", "l'oncle"], a: 0 },
+        { q: "« mater » signifie…", opts: ["la sœur", "la mère", "la fille", "la tante"], a: 1 },
+        { q: "« filius » signifie…", opts: ["le père", "le fils", "le frère", "l'ami"], a: 1 },
+        { q: "« amicus » signifie…", opts: ["l'ami", "le voisin", "le soldat", "le maître"], a: 0 },
+        { q: "« puella » signifie…", opts: ["la femme", "la jeune fille", "la mère", "la reine"], a: 1 },
+        { q: "« servus » signifie…", opts: ["le roi", "le soldat", "l'esclave", "le citoyen"], a: 2 },
+        { q: "« via » signifie…", opts: ["la route", "la rivière", "la ville", "la maison"], a: 0 },
+        { q: "« terra » signifie…", opts: ["la mer", "la montagne", "la terre", "la forêt"], a: 2 },
+        { q: "« luna » signifie…", opts: ["la lune", "le soleil", "l'étoile", "le ciel"], a: 0 },
+        { q: "« sol » signifie…", opts: ["la lune", "le soleil", "le ciel", "le feu"], a: 1 },
+        { q: "« rosa » signifie…", opts: ["la fleur", "la rose", "la feuille", "la couronne"], a: 1 }
       ]
     },
     histoire: {
-      title: "Histoire",
-      sub: "Ce que tu as appris sur Rome et le latin",
+      title: "Histoire Romaine",
+      sub: "Les grands repères et événements de la Rome Antique",
       questions: [
         { q: "Rome a été fondée, selon la légende, en…", opts: ["753 av. J.-C.", "27 av. J.-C.", "476 apr. J.-C.", "117 apr. J.-C."], a: 0 },
-        { q: "Le latin est à l'origine parlé dans…", opts: ["la Gaule", "le Latium", "la Grèce", "l'Égypte"], a: 1 },
-        { q: "Qui conquiert la Gaule au Ier siècle av. J.-C. ?", opts: ["Auguste", "Cicéron", "Jules César", "Virgile"], a: 2 },
-        { q: "L'Empire romain d'Occident s'effondre en…", opts: ["117 apr. J.-C.", "476 apr. J.-C.", "842 apr. J.-C.", "27 av. J.-C."], a: 1 },
-        { q: "L'Empire atteint son plus grand territoire sous…", opts: ["Auguste", "Romulus", "Trajan", "Charlemagne"], a: 2 },
-        { q: "Le latin reste langue savante en Europe jusqu'à environ…", opts: ["le Ve siècle", "le XVIIIe siècle", "le XXIe siècle", "le Ier siècle"], a: 1 },
+        { q: "Quelle série de guerres permet à Rome de dominer la Méditerranée occidentale entre 264 et 146 av. J.-C. ?", opts: ["Les guerres de Gaule", "Les guerres puniques", "Les guerres civiles", "Les guerres d'Italie"], a: 1 },
+        { q: "Qui conquiert la Gaule lors de la campagne des années 58-51 av. J.-C. ?", opts: ["Auguste", "Cicéron", "Jules César", "Virgile"], a: 2 },
+        { q: "En quelle année Auguste fonde-t-il l'Empire romain ?", opts: ["753 av. J.-C.", "51 av. J.-C.", "27 av. J.-C.", "117 apr. J.-C."], a: 2 },
+        { q: "À son apogée en 117 apr. J.-C., de quel pays à quel pays s'étend l'Empire romain ?", opts: ["De la Gaule jusqu'à l'Égypte", "De l'Écosse jusqu'à l'Irak", "De l'Espagne jusqu'à la Russie", "De la Bretagne jusqu'à la Germanie"], a: 1 },
+        { q: "L'Empire romain d'Occident s'effondre en…", opts: ["27 av. J.-C.", "117 apr. J.-C.", "476 apr. J.-C.", "842 apr. J.-C."], a: 2 }
+      ]
+    },
+    langue: {
+      title: "Histoire de la Langue",
+      sub: "L'origine de l'indo-européen et l'évolution du latin classique et vulgaire",
+      questions: [
+        { q: "Il y a 5000 ans, d'où venaient les peuples qui parlaient la langue commune appelée l'indo-européen ?", opts: ["Des côtes de la Méditerranée", "Des steppes d'Eurasie", "De l'Italie centrale", "D'Afrique du Nord"], a: 1 },
+        { q: "Le latin appartient à quel groupe spécifique au sein de la famille indo-européenne ?", opts: ["Les langues celtiques", "Les langues germaniques", "Les langues italiques", "Les langues slaves"], a: 2 },
+        { q: "À sa naissance, le latin n'est qu'un petit dialecte parlé dans quelle région entourant Rome ?", opts: ["Le Latium", "L'Étrurie", "La Campanie", "L'Ombrie"], a: 0 },
+        { q: "Parmi ces langues contemporaines de la naissance de Rome en Italie, laquelle n'est PAS du latin ?", opts: ["L'osque", "L'ombrien", "L'étrusque", "Toutes ces réponses"], a: 3 },
+        { q: "Dans l'Empire, quels sont les trois piliers où le latin s'impose comme outil d'unification ?", opts: ["Le commerce, la marine, le théâtre", "L'armée, l'administration, l'école et la culture", "La religion chrétienne, l'agriculture, les jeux", "La diplomatie, la monnaie, la justice urbaine"], a: 1 },
+        { q: "Quel visage du latin correspond à la langue soignée, écrite par Cicéron, César ou Virgile ?", opts: ["Le latin vulgaire", "Le latin classique", "Le néo-latin", "Le latin vernaculaire"], a: 1 },
+        { q: "D'où proviennent directement le français et les autres langues romanes ?", opts: ["Du latin classique des élites", "Du latin vulgaire parlé par le peuple au quotidien", "De l'étrusque écrit", "Des langues germaniques"], a: 1 },
+        { q: "Après la chute de Rome en 476, qui a sauvé les textes anciens de l'oubli dans les monastères ?", opts: ["Les marchands ambulants", "Les moines et les copistes", "Les soldats de l'armée", "Les premiers rois barbares"], a: 1 },
+        { q: "Quel ouvrage de physique d'Isaac Newton a été publié en latin en 1687 ?", opts: ["Principia Mathematica", "De Revolutionibus", "Discours de la Méthode", "De Natura"], a: 0 },
+        { q: "Quel texte de 842 est considéré comme le premier texte officiel en langue romane et l'acte de naissance du français ?", opts: ["La Vulgate", "Les Serments de Strasbourg", "La charte des universités", "Le traité de Verdun"], a: 1 },
+        { q: "Environ quel pourcentage du vocabulaire français provient directement ou indirectement du latin ?", opts: ["Plus de 20%", "Plus de 50%", "Plus de 80%", "Près de 100%"], a: 2 }
       ]
     },
     etymologie: {
@@ -168,13 +192,15 @@
   const meta = [
     { key: "vocab", num: "I" },
     { key: "histoire", num: "II" },
-    { key: "etymologie", num: "III" },
+    { key: "langue", num: "III" },
+    { key: "etymologie", num: "IV" },
   ];
 
   const challengesEl = document.getElementById("challenges");
   const quizTitle = document.getElementById("quiz-title");
   const quizSub = document.getElementById("quiz-sub");
   const quizBody = document.getElementById("quiz-body");
+  const quizActions = document.getElementById("quiz-actions");
   const validateBtn = document.getElementById("validate-btn");
   const retryBtn = document.getElementById("retry-btn");
   const scorePill = document.getElementById("score-pill");
@@ -210,6 +236,7 @@
     retryBtn.style.display = "none";
     validateBtn.style.display = "inline-block";
     validateBtn.disabled = false;
+    quizActions.style.display = "flex";
 
     quizBody.innerHTML = "";
     quiz.questions.forEach((q, qi) => {
@@ -266,7 +293,6 @@
   retryBtn.addEventListener("click", () => loadQuiz(currentKey));
 
   buildCards();
-  loadQuiz(meta[0].key);
 </script>
 
 </body>
