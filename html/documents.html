@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Tabularium — Documents &amp; corrigés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
+    --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+    --umber:#2B1B12; --umber-light:#3E2A1C; --ink:#3A2A1F; --ink-soft:#7A6A56;
+    --radius:16px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--cream); position:relative; overflow-x:hidden;}
+  a{color:inherit;}
+  :focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px;}
+
+  .blob{position:absolute; border-radius:50%; z-index:0; pointer-events:none;}
+  .page{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 1.5rem 4rem;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:1.6rem 0 1rem;}
+  .back{display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.88rem; text-decoration:none; color:var(--ink-soft);}
+  .back svg{width:15px; height:15px; stroke:var(--ink-soft); fill:none;}
+  .back:hover{color:var(--brick);}
+  .tabs{display:flex; gap:0.4rem; background:var(--parch); padding:0.3rem; border-radius:999px;}
+  .tab{padding:0.45rem 1rem; border-radius:999px; text-decoration:none; font-size:0.82rem; font-weight:600; color:var(--ink-soft);}
+  .tab.active{background:var(--brick); color:var(--cream);}
+  .tab:not(.active):hover{color:var(--brick);}
+
+  header.hero{padding:1.5rem 0 2rem;}
+  .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.26em; color:var(--brick); text-transform:uppercase;}
+  h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2.4rem, 5.5vw, 3.3rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
+  p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
+
+  /* ---- archive list ---- */
+  .archive{border-radius:var(--radius); overflow:hidden; box-shadow:0 12px 30px rgba(43,27,18,0.08);}
+  .arow{
+    display:grid; grid-template-columns:3.2rem 1fr auto auto;
+    align-items:center; gap:1rem; background:var(--parch); padding:1.1rem 1.4rem;
+    border-bottom:1px solid var(--parch-dark);
+  }
+  .arow:last-child{border-bottom:none;}
+  .arow.header-row{background:var(--umber); color:var(--cream); font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:0.85rem 1.4rem;}
+  .arow.header-row .anum{color:var(--gold-light);}
+  .anum{font-family:var(--serif); font-weight:700; font-size:1.2rem; color:var(--gold); text-align:center;}
+  .atext{min-width:0;}
+  .atitle{font-weight:700; font-size:0.95rem; color:var(--umber); margin:0 0 0.15rem;}
+  .adesc{font-size:0.82rem; color:var(--ink-soft); margin:0;}
+  .doc-btn{
+    display:inline-flex; align-items:center; gap:0.4rem; text-decoration:none; font-weight:700; font-size:0.82rem;
+    padding:0.55rem 0.95rem; border-radius:9px; white-space:nowrap;
+  }
+  .doc-btn svg{width:14px; height:14px; fill:none;}
+  .doc-btn.cours{background:var(--brick); color:var(--cream);}
+  .doc-btn.cours:hover{background:var(--brick-dark);}
+  .doc-btn.cours svg{stroke:var(--cream);}
+  .doc-btn.corrige{background:transparent; color:var(--brick); border:2px solid var(--brick);}
+  .doc-btn.corrige:hover{background:var(--brick); color:var(--cream);}
+  .doc-btn.corrige:hover svg{stroke:var(--cream);}
+  .doc-btn.corrige svg{stroke:var(--brick);}
+
+  @media (max-width:680px){
+    .arow{grid-template-columns:2.4rem 1fr; row-gap:0.7rem;}
+    .arow.header-row{display:none;}
+    .doc-btn{grid-column:1 / -1; justify-content:center;}
+    .doc-btn.cours{grid-column:1;}
+    .doc-btn.corrige{grid-column:2;}
+  }
+
+  .note{
+    margin-top:1.6rem; font-size:0.85rem; color:var(--ink-soft);
+    display:flex; align-items:flex-start; gap:0.55rem;
+  }
+  .note svg{width:17px; height:17px; stroke:var(--gold); fill:none; flex-shrink:0; margin-top:0.1rem;}
+</style>
+</head>
+<body>
+
+  <div class="blob" style="width:380px;height:380px;top:-180px;left:-180px;background:var(--parch-dark);opacity:0.5;"></div>
+
+  <div class="page">
+    <div class="topbar">
+      <a class="back" href="index.html">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Atrium
+      </a>
+      <div class="tabs">
+        <a class="tab" href="cours.html">Bibliotheca</a>
+        <a class="tab active" href="documents.html">Tabularium</a>
+        <a class="tab" href="exercices.html">Palestra</a>
+      </div>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">Le Tabularium</div>
+      <h1 class="title">Documents &amp; corrigés</h1>
+      <p class="lede">Retrouve ici tous les documents de cours à télécharger, ainsi que leurs corrigés pour vérifier ton travail.</p>
+    </header>
+
+    <div class="archive" id="archive">
+      <div class="arow header-row">
+        <span class="anum">#</span>
+        <span>Séance</span>
+        <span>Cours</span>
+        <span>Corrigé</span>
+      </div>
+    </div>
+
+    <p class="note">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      Un lien ne fonctionne pas ? Le document n'a peut-être pas encore été mis en ligne par ton professeur — réessaie un peu plus tard.
+    </p>
+  </div>
+
+<script>
+  // Chaque document pointe vers un fichier dans /documents/ (cours) ou /corriges/ (corrigé).
+  // Pour ajouter un document : dépose le PDF avec le nom indiqué ci-dessous dans le bon dossier.
+  const docs = [
+    { num: "I",   title: "Les origines : la famille indo-européenne", desc: "La famille des langues indo-européennes", cours: "documents/seance-1-cours.pdf", corrige: "corriges/seance-1-corrige.pdf" },
+    { num: "II",  title: "La naissance du latin à Rome",               desc: "Un petit dialecte du Latium", cours: "documents/seance-2-cours.pdf", corrige: "corriges/seance-2-corrige.pdf" },
+    { num: "III", title: "L'expansion du latin dans l'Empire",         desc: "Le latin conquiert l'Europe", cours: "documents/seance-3-cours.pdf", corrige: "corriges/seance-3-corrige.pdf" },
+    { num: "IV",  title: "Le latin, langue savante",                   desc: "Du Moyen Âge au néo-latin", cours: "documents/seance-4-cours.pdf", corrige: "corriges/seance-4-corrige.pdf" },
+    { num: "V",   title: "La naissance des langues vernaculaires",     desc: "Le latin donne naissance au français", cours: "documents/seance-5-cours.pdf", corrige: "corriges/seance-5-corrige.pdf" },
+    { num: "VI",  title: "Bilan : le latin aujourd'hui",                desc: "Ce qu'il reste du latin", cours: "documents/seance-6-cours.pdf", corrige: "corriges/seance-6-corrige.pdf" },
+  ];
+
+  const dlIcon = `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 12l5 5 5-5M4 19.5c0 .8.7 1.5 1.5 1.5h13c.8 0 1.5-.7 1.5-1.5"/></svg>`;
+
+  const archive = document.getElementById("archive");
+  docs.forEach(d => {
+    const row = document.createElement("div");
+    row.className = "arow";
+    row.innerHTML = `
+      <span class="anum">${d.num}</span>
+      <span class="atext">
+        <p class="atitle">${d.title}</p>
+        <p class="adesc">${d.desc}</p>
+      </span>
+      <a class="doc-btn cours" href="${d.cours}" download>${dlIcon} Cours</a>
+      <a class="doc-btn corrige" href="${d.corrige}" download>${dlIcon} Corrigé</a>
+    `;
+    archive.appendChild(row);
+  });
+</script>
+
+</body>
+</html>
