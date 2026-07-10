@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root{
+    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+    --umber:#2B1B12; --ink:#3A2A1F; --ink-soft:#7A6A56; --good:#3F7A52; --bad:#B23A2E;
+    --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+  }
+  body { margin:0; font-family:var(--sans); color:var(--ink); background:transparent; }
+  .quiz-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.4rem; gap:1rem;}
+  .quiz-title { font-family:var(--serif); font-weight:700; font-size:1.5rem; color:var(--brick-dark); margin:0; }
+  .quiz-sub { font-size:0.85rem; color:var(--ink-soft); margin:0.2rem 0 0; }
+  #score-pill { display:none; align-items:center; background:var(--umber); color:var(--cream); padding:0.5rem 1rem; border-radius:999px; font-weight:700; font-size:0.9rem; }
+  
+  .timeline { display:flex; flex-direction:column; gap:0.8rem; margin:1rem 0; position:relative; }
+  .timeline::before { content:''; position:absolute; left:25px; top:0; bottom:0; width:4px; background:var(--parch-dark); z-index:0; }
+  .timeline-slot { display:flex; align-items:center; gap:1.5rem; position:relative; z-index:1; }
+  .time-indicator { width:54px; height:54px; background:var(--umber); color:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-weight:700; font-size:0.9rem; border:3px solid var(--parch); }
+  
+  .chrono-zone { flex-grow:1; min-height:3.6rem; border:2px dashed var(--parch-dark); border-radius:12px; background:rgba(255,255,255,0.3); display:flex; align-items:center; padding:0 1rem; }
+  .chrono-zone.drag-over { border-color:var(--gold); background:#FFFDF9; }
+  
+  .event-card { background:var(--cream); border:2px solid var(--parch-dark); padding:0.6rem 1rem; border-radius:8px; font-weight:600; font-size:0.9rem; cursor:grab; box-shadow:0 2px 5px rgba(0,0,0,0.05); width:100%; }
+  .event-card.correct { border-color:var(--good); background:#EAF3EC; }
+  .event-card.incorrect { border-color:var(--bad); background:#FBEAE8; }
+
+  .pool { display:flex; flex-wrap:wrap; gap:0.6rem; padding:1rem; background:var(--parch-dark); border-radius:12px; min-height:4rem; margin-bottom:1.5rem; }
+  .quiz-actions { display:flex; gap:0.8rem; }
+  .btn { border:none; border-radius:10px; padding:0.75rem 1.4rem; font-weight:700; font-size:0.9rem; cursor:pointer; }
+  .btn.primary { background:var(--brick); color:var(--cream); }
+  .btn.primary:hover { background:var(--brick-dark); }
+  .btn.ghost { background:transparent; color:var(--brick); border:2px solid var(--brick); }
+  .btn.ghost:hover { background:var(--brick); color:var(--cream); }
+</style>
+</head>
+<body>
+
+  <div class="quiz-head">
+    <div>
+      <p class="quiz-title">La Chronologie Romaine</p>
+      <p class="quiz-sub">Remets ces événements cruciaux dans le bon ordre chronologique, du plus ancien au plus récent (5 événements tirés au sort).</p>
+    </div>
+    <div id="score-pill">Score : <span id="score-value">0/0</span></div>
+  </div>
+
+  <div class="pool" id="event-pool"></div>
+  <div class="timeline" id="timeline-slots"></div>
+
+  <div class="quiz-actions">
+    <button class="btn primary" id="validate-btn">Valider ma frise</button>
+    <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer</button>
+  </div>
+
+<script>
+  const eventsDataset = [
+    { text: "Fondation légendaire de Rome par Romulus", order: 1 },
+    { text: "Chute de la Royauté et naissance de la République", order: 2 },
+    { text: "Victoire romaine face à Vercingétorix à Alésia", order: 3 },
+    { text: "Octave reçoit le titre d'Auguste (début de l'Empire)", order: 4 },
+    { text: "Fin de l'Empire romain d'Occident", order: 5 }
+  ];
+
+  const pool = document.getElementById("event-pool");
+  const timeline = document.getElementById("timeline-slots");
+  const valBtn = document.getElementById("validate-btn");
+  const retBtn = document.getElementById("retry-btn");
+  const scorePill = document.getElementById("score-pill");
+
+  function init() {
+    pool.innerHTML = ""; timeline.innerHTML = "";
+    scorePill.style.display = "none"; retBtn.style.display = "none"; valBtn.style.display = "inline-block";
+
+    // On crée 5 slots de réception ordonnés (I, II, III, IV, V)
+    const numerals = ["I", "II", "III", "IV", "V"];
+    numerals.forEach((num, idx) => {
+      const slot = document.createElement("div");
+      slot.className = "timeline-slot";
+      slot.innerHTML = `
+        <div class="time-indicator">${num}</div>
+        <div class="chrono-zone" data-order="${idx + 1}"></div>
+      `;
+      timeline.appendChild(slot);
+    });
+
+    // Configuration Drag & Drop
+    document.querySelectorAll('.chrono-zone, #event-pool').forEach(zone => {
+      zone.addEventListener("dragover", e => e.preventDefault());
+      zone.addEventListener("dragenter", () => zone.classList.add("drag-over"));
+      zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+      zone.addEventListener("drop", e => {
+        e.preventDefault(); zone.classList.remove("drag-over");
+        const id = e.dataTransfer.getData("text/plain");
+        const el = document.getElementById(id);
+        // Si la zone contient déjà une carte, on ne fait rien ou on échange (ici on autorise si vide)
+        if(el && zone.children.length === 0) zone.appendChild(el);
+      });
+    });
+
+    // Mélange des cartes d'événements
+    [...eventsDataset].sort(() => Math.random() - 0.5).forEach((ev, i) => {
+      const card = document.createElement("div");
+      card.className = "event-card"; card.draggable = true; card.id = `ev-${i}`;
+      card.textContent = ev.text; card.dataset.correctOrder = ev.order;
+      card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", card.id));
+      pool.appendChild(card);
+    });
+  }
+
+  valBtn.addEventListener("click", () => {
+    let score = 0;
+    const zones = document.querySelectorAll(".chrono-zone");
+    
+    zones.forEach(zone => {
+      const card = zone.firstElementChild;
+      if (card) {
+        card.draggable = false;
+        if (parseInt(card.dataset.correctOrder, 10) === parseInt(zone.dataset.order, 10)) {
+          score++; card.classList.add("correct");
+        } else {
+          card.classList.add("incorrect");
+        }
+      }
+    });
+
+    document.getElementById("score-value").textContent = `${score}/${eventsDataset.length}`;
+    scorePill.style.display = "inline-flex"; valBtn.style.display = "none"; retBtn.style.display = "inline-block";
+  });
+
+  retBtn.addEventListener("click", init);
+  init();
+</script>
+</body>
+</html>
