@@ -118,17 +118,19 @@
 <script>
   // Chaque document pointe vers un fichier dans /documents/ (cours) ou /corriges/ (corrigé).
   // Pour ajouter un document : dépose le PDF avec le nom indiqué ci-dessous dans le bon dossier.
-  const docs = [
-    { num: "I",   title: " Introduction à la langue latine", desc: "Le latin d'hier à aujourd'hui", cours: "documents/seance-1-cours.pdf", corrige: "corriges/seance-1-corrige.pdf" },
-    { num: "II",  title: "Alphabet, prononciation, lecture",               desc: "Lire le latin", cours: "documents/seance-2-cours.pdf", corrige: "corriges/seance-2-corrige.pdf" },
-    { num: "III", title: "La guerre de Troie",         desc: "Quelques repères du mythe (I)", cours: "documents/seance-3-cours.pdf", corrige: "corriges/seance-3-corrige.pdf" },
-    { num: "IV",  title: "Énée : de Troie à Albe",                   desc: "Quelques repères du mythe (II)", cours: "documents/seance-4-cours.pdf", corrige: "corriges/seance-4-corrige.pdf" },
-    { num: "V",   title: "De la fondation à la chute",     desc: "Quelques repères (III)", cours: "documents/seance-5-cours.pdf", corrige: "corriges/seance-5-corrige.pdf" },
-    { num: "VI",  title: "Bases du latin (I)",                desc: "Travailler son français, travailler son latin", cours: "documents/seance-6-cours.pdf", corrige: "corriges/seance-6-corrige.pdf" },
-    { num: "VII",  title: "Bases du latin (II)",                desc: "Travailler son français, travailler son latin", cours: "documents/seance-6-cours.pdf", corrige: "corriges/seance-6-corrige.pdf" },
-    { num: "VIII",  title: "Bases du latin (III)",                desc: "Travailler son français, travailler son latin", cours: "documents/seance-6-cours.pdf", corrige: "corriges/seance-6-corrige.pdf" },
-    { num: "IX",  title: "Bases du latin (IV)",                desc: "Travailler son français, travailler son latin", cours: "documents/seance-6-cours.pdf", corrige: "corriges/seance-6-corrige.pdf" },
-  ];
+const docs = [
+  { num: "I",    title: "Introduction à la langue latine", desc: "Le latin d'hier à aujourd'hui", cours: "documents/seance-1-cours.pdf", corrige: "corriges/seance-1-corrige.pdf" },
+  { num: "II",   title: "Alphabet, prononciation, lecture", desc: "Lire le latin", cours: "documents/seance-2-cours.pdf", corrige: "corriges/seance-2-corrige.pdf" },
+  { num: "III",  title: "La guerre de Troie", desc: "Quelques repères du mythe (I)", cours: "documents/seance-3-cours.pdf", corrige: "corriges/seance-3-corrige.pdf" },
+  { num: "IV",   title: "Énée : de Troie à Albe", desc: "Quelques repères du mythe (II)", cours: "documents/seance-4-cours.pdf", corrige: "corriges/seance-4-corrige.pdf" },
+  { num: "V",    title: "Rome : de la fondation à la chute", desc: "Quelques repères (III)", cours: "documents/seance-5-cours.pdf", corrige: "corriges/seance-5-corrige.pdf" },
+  { num: "VI",   title: "Bases de latin (I)", desc: "Le sujet, l’apostrophe, le complément d’objet direct", cours: "documents/seance-6-cours.pdf", corrige: "corriges/seance-6-corrige.pdf" },
+  { num: "VII",  title: "Bases de latin (II)", desc: "Organisation de la phrase française, organisation de la phrase latine", cours: "documents/seance-7-cours.pdf", corrige: "corriges/seance-7-corrige.pdf" },
+  { num: "VIII", title: "Bases de latin (III)", desc: "Complément du nom, complément d’objet indirect, complément circonstanciel", cours: "documents/seance-8-cours.pdf", corrige: "corriges/seance-8-corrige.pdf" },
+  { num: "IX",   title: "Bases de latin (IV)", desc: "Identifier les fonctions, connaître leur cas latin", cours: "documents/seance-9-cours.pdf", corrige: "corriges/seance-9-corrige.pdf" },
+  { num: "X",    title: "Romulus et Rémus", desc: "De la naissance à la fondation de la ville", cours: "documents/seance-10-cours.pdf", corrige: "corriges/seance-10-corrige.pdf" },
+  { num: "XI",   title: "Les déclinaisons latines", desc: "Reconnaître, distinguer, lire une entrée de dictionnaire", cours: "documents/seance-11-cours.pdf", corrige: "corriges/seance-11-corrige.pdf" }
+];
 
   const dlIcon = `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 12l5 5 5-5M4 19.5c0 .8.7 1.5 1.5 1.5h13c.8 0 1.5-.7 1.5-1.5"/></svg>`;
 
