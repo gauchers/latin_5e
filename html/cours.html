@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Bibliotheca — Les cours</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght=500;600;700&family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
@@ -17,11 +17,12 @@
   body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--cream); position:relative; overflow-x:hidden;}
   a{color:inherit;}
   :focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px;}
-  button{font-family:var(--sans);}
+  button{font-family:var(--sans); border:none;}
 
   .blob{position:absolute; border-radius:50%; z-index:0; pointer-events:none;}
 
-  .page{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 1.5rem 4rem;}
+  /* Élargissement de la page pour une lecture de PDF confortable */
+  .page{position:relative; z-index:1; max-width:1300px; margin:0 auto; padding:0 1.5rem 4rem;}
 
   /* ---- top navigation ---- */
   .topbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:1.6rem 0 1rem;}
@@ -33,51 +34,88 @@
   .tab.active{background:var(--brick); color:var(--cream);}
   .tab:not(.active):hover{color:var(--brick);}
 
-  header.hero{padding:1.5rem 0 2rem;}
+  header.hero{padding:1.5rem 0 1rem;}
   .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.26em; color:var(--brick); text-transform:uppercase;}
   h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2.4rem, 5.5vw, 3.3rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
   p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
 
-  /* ---- séance chips ---- */
-  .seance-list{display:flex; flex-wrap:wrap; gap:0.6rem; margin:1.8rem 0 2rem;}
-  .seance-chip{
-    display:flex; align-items:center; gap:0.55rem;
-    background:var(--parch); border:2px solid transparent; border-radius:12px;
-    padding:0.7rem 1rem; cursor:pointer; text-align:left; min-width:210px; flex:1 1 210px;
-    transition:border-color .15s ease, transform .15s ease;
+  /* ---- Nouvelle structure en 2 colonnes ---- */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
   }
-  .seance-chip:hover{transform:translateY(-2px);}
-  .seance-chip.active{border-color:var(--brick); background:var(--cream); box-shadow:0 8px 20px rgba(43,27,18,0.1);}
-  @media (prefers-reduced-motion:reduce){.seance-chip{transition:none;} .seance-chip:hover{transform:none;}}
-  .chip-num{
-    font-family:var(--serif); font-weight:700; font-size:1.1rem; color:var(--gold);
-    width:2rem; flex-shrink:0; text-align:center;
-  }
-  .seance-chip.active .chip-num{color:var(--brick);}
-  .chip-text{font-size:0.86rem; font-weight:600; color:var(--ink); line-height:1.3;}
 
-  /* ---- viewer ---- */
+  /* ---- Menu des séances à gauche ---- */
+  .seance-list{
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  
+  .seance-chip{
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    background: var(--parch);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
+  }
+  .seance-chip:hover{ transform: translateY(-2px); background: var(--parch-dark); }
+  .seance-chip.active{ border-color: var(--brick); background: var(--cream); box-shadow: 0 8px 20px rgba(43,27,18,0.08); }
+  @media (prefers-reduced-motion:reduce){.seance-chip{transition:none;} .seance-chip:hover{transform:none;}}
+  
+  .chip-num{
+    font-family: var(--serif); font-weight: 700; font-size: 1.1rem; color: var(--gold);
+    width: 1.8rem; flex-shrink: 0; text-align: center;
+  }
+  .seance-chip.active .chip-num{ color: var(--brick); }
+  .chip-text{ font-size: 0.88rem; font-weight: 600; color: var(--ink); line-height: 1.35; }
+
+  /* ---- Visualiseur agrandi à droite ---- */
   .viewer-panel{
-    background:var(--parch); border-radius:var(--radius); padding:1.4rem;
-    box-shadow:0 12px 30px rgba(43,27,18,0.1);
+    background: var(--parch); 
+    border-radius: var(--radius); 
+    padding: 1.5rem;
+    box-shadow: 0 12px 30px rgba(43,27,18,0.1);
   }
-  .viewer-head{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;}
-  .viewer-title{font-family:var(--serif); font-weight:700; font-size:1.4rem; color:var(--brick-dark); margin:0;}
-  .viewer-sub{font-size:0.85rem; color:var(--ink-soft); margin:0.2rem 0 0;}
+  .viewer-head{ display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .viewer-title{ font-family: var(--serif); font-weight: 700; font-size: 1.4rem; color: var(--brick-dark); margin: 0; }
+  .viewer-sub{ font-size: 0.88rem; color: var(--ink-soft); margin: 0.2rem 0 0; }
+  
   .dl-btn{
-    display:inline-flex; align-items:center; gap:0.45rem; background:var(--brick); color:var(--cream);
-    text-decoration:none; font-weight:700; font-size:0.85rem; padding:0.65rem 1.1rem; border-radius:10px;
-    flex-shrink:0; white-space:nowrap;
+    display: inline-flex; align-items: center; gap: 0.45rem; background: var(--brick); color: var(--cream);
+    text-decoration: none; font-weight: 700; font-size: 0.85rem; padding: 0.65rem 1.1rem; border-radius: 10px;
+    flex-shrink: 0; white-space: nowrap; transition: background .15s ease;
   }
-  .dl-btn svg{width:15px; height:15px; stroke:var(--cream); fill:none;}
-  .dl-btn:hover{background:var(--brick-dark);}
+  .dl-btn svg{ width: 15px; height: 15px; stroke: var(--cream); fill: none; }
+  .dl-btn:hover{ background: var(--brick-dark); }
 
   .frame-wrap{
-    background:var(--cream); border-radius:12px; overflow:hidden;
-    border:1px solid var(--parch-dark); position:relative;
+    background: var(--cream); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--parch-dark); position: relative;
   }
-  .frame-wrap iframe{width:100%; height:68vh; min-height:420px; border:0; display:block; background:var(--cream);}
-  .fallback-note{font-size:0.8rem; color:var(--ink-soft); margin:0.7rem 0.2rem 0;}
+  /* Hauteur optimisée pour la liseuse de PDF */
+  .frame-wrap iframe{ width: 100%; height: 75vh; min-height: 550px; border: 0; display: block; background: var(--cream); }
+  .fallback-note{ font-size: 0.8rem; color: var(--ink-soft); margin: 0.7rem 0.2rem 0; }
+
+  /* ---- Adaptabilité tablettes / mobiles ---- */
+  @media (max-width: 900px) {
+    .main-layout {
+      grid-template-columns: 1fr;
+    }
+    .frame-wrap iframe {
+      height: 60vh;
+      min-height: 450px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -100,32 +138,35 @@
     <header class="hero">
       <div class="eyebrow">La Bibliotheca</div>
       <h1 class="title">Les cours</h1>
-      <p class="lede">Choisis une séance ci-dessous : le cours s'ouvre juste en dessous et tu peux faire défiler les pages comme un vrai document.</p>
+      <p class="lede">Choisis une séance dans le menu de gauche : le document s'ouvre instantanément à droite et se parcourt de manière parfaitement fluide.</p>
     </header>
 
-    <div class="seance-list" id="seance-list"></div>
+    <!-- Zone principale scindée en deux colonnes -->
+    <div class="main-layout">
+      
+      <nav class="seance-list" id="seance-list"></nav>
 
-    <section class="viewer-panel">
-      <div class="viewer-head">
-        <div>
-          <p class="viewer-title" id="viewer-title">—</p>
-          <p class="viewer-sub" id="viewer-sub">—</p>
+      <section class="viewer-panel">
+        <div class="viewer-head">
+          <div>
+            <p class="viewer-title" id="viewer-title">—</p>
+            <p class="viewer-sub" id="viewer-sub">—</p>
+          </div>
+          <a class="dl-btn" id="dl-link" href="#" download>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 12l5 5 5-5M4 19.5c0 .8.7 1.5 1.5 1.5h13c.8 0 1.5-.7 1.5-1.5"/></svg>
+            Télécharger
+          </a>
         </div>
-        <a class="dl-btn" id="dl-link" href="#" download>
-          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 12l5 5 5-5M4 19.5c0 .8.7 1.5 1.5 1.5h13c.8 0 1.5-.7 1.5-1.5"/></svg>
-          Télécharger
-        </a>
-      </div>
-      <div class="frame-wrap">
-        <iframe id="pdf-frame" title="Cours en PDF"></iframe>
-      </div>
-      <p class="fallback-note">Le document ne s'affiche pas ? Clique sur « Télécharger » ci-dessus pour l'ouvrir directement.</p>
-    </section>
+        <div class="frame-wrap">
+          <iframe id="pdf-frame" title="Cours en PDF"></iframe>
+        </div>
+        <p class="fallback-note">Le document ne s'affiche pas ? Clique sur « Télécharger » ci-dessus pour l'ouvrir directement.</p>
+      </section>
+
+    </div>
   </div>
 
 <script>
-  // Chaque séance pointe vers un fichier PDF dans le dossier /pdfs/.
-  // Pour ajouter un cours : dépose le PDF dans /pdfs/ avec le nom indiqué ci-dessous.
   const seances = [
     { num: "I",   title: "Introduction à la langue latine", sub: "Le latin d'hier à aujourd'hui", file: "../pdf/LA_5E_001.pdf" },
     { num: "II",  title: "Alphabet, prononciation, lecture",               sub: "Lire le latin", file: "../pdf/LA_5E_002.pdf" },
@@ -154,6 +195,13 @@
     frame.src = s.file + "#toolbar=1&view=FitH";
     dlLink.href = s.file;
     dlLink.setAttribute("download", "");
+
+    // Scroll fluide automatique sur mobile uniquement lorsque l'on clique
+    if(window.innerWidth <= 900) {
+      setTimeout(() => {
+        document.querySelector('.viewer-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
   }
 
   seances.forEach((s, i) => {
@@ -164,6 +212,7 @@
     list.appendChild(chip);
   });
 
+  // Sélection automatique de la première séance au chargement
   selectSeance(0);
 </script>
 
