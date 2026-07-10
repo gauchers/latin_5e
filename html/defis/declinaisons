@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root{
+    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+    --umber:#2B1B12; --ink:#3A2A1F; --ink-soft:#7A6A56; --good:#3F7A52; --bad:#B23A2E;
+    --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+  }
+  body { margin: 0; font-family: var(--sans); color: var(--ink); background: transparent; }
+  .quiz-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.4rem; gap:1rem;}
+  .quiz-title { font-family: var(--serif); font-weight: 700; font-size: 1.5rem; color: var(--brick-dark); margin: 0; }
+  .quiz-sub { font-size: 0.85rem; color: var(--ink-soft); margin: 0.2rem 0 0; }
+  #score-pill { display: none; align-items: center; background: var(--umber); color: var(--cream); padding: 0.5rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
+
+  .sort-container { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
+  .sort-pool { display: flex; flex-wrap: wrap; gap: 0.6rem; padding: 1.2rem; background: var(--parch-dark); border-radius: 12px; min-height: 4.5rem; align-items: center; justify-content: center; }
+  .sort-item { background: var(--cream); border: 2px solid var(--parch-dark); padding: 0.55rem 0.95rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: grab; user-select: none; }
+  .sort-item:active { cursor: grabbing; }
+  .sort-item.correct { border-color: var(--good); background: #EAF3EC; color: #1e462a; }
+  .sort-item.incorrect { border-color: var(--bad); background: #FBEAE8; color: #6b211a; }
+  
+  .sort-buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .sort-bucket { background: var(--cream); border: 2px dashed var(--parch-dark); border-radius: 12px; padding: 1.2rem; min-height: 9rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .sort-bucket.drag-over { border-color: var(--gold); background: #FFFDF9; }
+  .sort-bucket h4 { margin: 0 0 0.4rem 0; font-family: var(--serif); font-size: 1.1rem; color: var(--umber); text-align: center; border-bottom: 1px solid var(--parch); padding-bottom: 0.4rem;}
+
+  .quiz-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+  .btn { border: none; border-radius: 10px; padding: 0.75rem 1.4rem; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+  .btn.primary { background: var(--brick); color: var(--cream); }
+  .btn.primary:hover { background: var(--brick-dark); }
+  .btn.ghost { background: transparent; color: var(--brick); border: 2px solid var(--brick); }
+  .btn.ghost:hover { background: var(--brick); color: var(--cream); }
+</style>
+</head>
+<body>
+
+  <div class="quiz-head">
+    <div>
+      <p class="quiz-title">Les Déclinaisons</p>
+      <p class="quiz-sub">Classe les entrées de dictionnaire dans leur bonne déclinaison.</p>
+    </div>
+    <div id="score-pill">Score : <span id="score-value">0/0</span></div>
+  </div>
+
+  <div class="sort-container">
+    <div class="sort-pool" id="sort-pool"></div>
+    <div class="sort-buckets" id="sort-buckets"></div>
+  </div>
+
+  <div class="quiz-actions">
+    <button class="btn primary" id="validate-btn">Valider mon tri</button>
+    <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer</button>
+  </div>
+
+<script>
+  const dataset = {
+    buckets: [
+      { id: "dec1", label: "1ère déclinaison (-ae)" },
+      { id: "dec2m", label: "2e déclinaison Masc./Fém. (-i)" },
+      { id: "dec2n", label: "2e déclinaison Neutre (-i)" }
+    ],
+    items: [
+      { word: "vita, ae, f. (la vie)", bucket: "dec1" },
+      { word: "dominus, i, m. (le maître)", bucket: "dec2m" },
+      { word: "rosa, ae, f. (la rose)", bucket: "dec1" },
+      { word: "bellum, i, n. (la guerre)", bucket: "dec2n" },
+      { word: "puer, i, m. (l'enfant)", bucket: "dec2m" },
+      { word: "aqua, ae, f. (l'eau)", bucket: "dec1" },
+      { word: "templum, i, n. (le temple)", bucket: "dec2n" },
+      { word: "amicus, i, m. (l'ami)", bucket: "dec2m" }
+    ]
+  };
+
+  const pool = document.getElementById("sort-pool");
+  const bucketsContainer = document.getElementById("sort-buckets");
+  const valBtn = document.getElementById("validate-btn");
+  const retBtn = document.getElementById("retry-btn");
+  const scorePill = document.getElementById("score-pill");
+  const scoreValue = document.getElementById("score-value");
+
+  function init() {
+    pool.innerHTML = "";
+    bucketsContainer.innerHTML = "";
+    scorePill.style.display = "none";
+    retBtn.style.display = "none";
+    valBtn.style.display = "inline-block";
+
+    // Build Buckets
+    dataset.buckets.forEach(b => {
+      const bEl = document.createElement("div");
+      bEl.className = "sort-bucket";
+      bEl.dataset.bid = b.id;
+      bEl.innerHTML = `<h4>${b.label}</h4>`;
+      
+      bEl.addEventListener("dragover", e => e.preventDefault());
+      bEl.addEventListener("dragenter", () => bEl.classList.add("drag-over"));
+      bEl.addEventListener("dragleave", () => bEl.classList.remove("drag-over"));
+      bEl.addEventListener("drop", e => {
+        e.preventDefault();
+        bEl.classList.remove("drag-over");
+        const itemId = e.dataTransfer.getData("text/plain");
+        const itemEl = document.getElementById(itemId);
+        if (itemEl) bEl.appendChild(itemEl);
+      });
+      bucketsContainer.appendChild(bEl);
+    });
+
+    pool.addEventListener("dragover", e => e.preventDefault());
+    pool.addEventListener("drop", e => {
+      e.preventDefault();
+      const itemId = e.dataTransfer.getData("text/plain");
+      const itemEl = document.getElementById(itemId);
+      if (itemEl) pool.appendChild(itemEl);
+    });
+
+    // Generate Shuffled Items
+    const shuffled = [...dataset.items].sort(() => Math.random() - 0.5);
+    shuffled.forEach((item, index) => {
+      const itemEl = document.createElement("div");
+      itemEl.className = "sort-item";
+      itemEl.draggable = true;
+      itemEl.id = `item-${index}`;
+      itemEl.textContent = item.word;
+      itemEl.dataset.correctBucket = item.bucket;
+
+      itemEl.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", itemEl.id);
+      });
+      pool.appendChild(itemEl);
+    });
+  }
+
+  valBtn.addEventListener("click", () => {
+    let score = 0;
+    const items = document.querySelectorAll(".sort-item");
+
+    items.forEach(itemEl => {
+      itemEl.draggable = false;
+      const parentBucket = itemEl.parentElement.dataset.bid;
+      const correctBucket = itemEl.dataset.correctBucket;
+
+      if (parentBucket === correctBucket) {
+        score++;
+        itemEl.classList.add("correct");
+      } else {
+        itemEl.classList.add("incorrect");
+        const target = dataset.buckets.find(b => b.id === correctBucket);
+        itemEl.innerHTML += ` <span style="font-size:0.75rem; font-weight:normal; display:block; opacity:0.8; margin-top:2px;">(Attendu : ${target.label.split(' ')[0]})</span>`;
+      }
+    });
+
+    scoreValue.textContent = `${score}/${dataset.items.length}`;
+    scorePill.style.display = "inline-flex";
+    valBtn.style.display = "none";
+    retBtn.style.display = "inline-block";
+  });
+
+  retBtn.addEventListener("click", init);
+  init();
+</script>
+</body>
+</html>
