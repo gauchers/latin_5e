@@ -21,10 +21,10 @@
   .sort-item.correct { border-color: var(--good); background: #EAF3EC; color: #1e462a; }
   .sort-item.incorrect { border-color: var(--bad); background: #FBEAE8; color: #6b211a; }
   
-  .sort-buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-  .sort-bucket { background: var(--cream); border: 2px dashed var(--parch-dark); border-radius: 12px; padding: 1.2rem; min-height: 9rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .sort-buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; }
+  .sort-bucket { background: var(--cream); border: 2px dashed var(--parch-dark); border-radius: 12px; padding: 1rem; min-height: 10rem; display: flex; flex-direction: column; gap: 0.6rem; }
   .sort-bucket.drag-over { border-color: var(--gold); background: #FFFDF9; }
-  .sort-bucket h4 { margin: 0 0 0.4rem 0; font-family: var(--serif); font-size: 1.1rem; color: var(--umber); text-align: center; border-bottom: 1px solid var(--parch); padding-bottom: 0.4rem;}
+  .sort-bucket h4 { margin: 0 0 0.2rem 0; font-family: var(--serif); font-size: 1.05rem; color: var(--umber); text-align: center; border-bottom: 1px solid var(--parch); padding-bottom: 0.4rem;}
 
   .quiz-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
   .btn { border: none; border-radius: 10px; padding: 0.75rem 1.4rem; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
@@ -39,7 +39,7 @@
   <div class="quiz-head">
     <div>
       <p class="quiz-title">Les Déclinaisons</p>
-      <p class="quiz-sub">Classe les entrées de dictionnaire dans leur bonne déclinaison.</p>
+      <p class="quiz-sub">Analyse la terminaison du génitif pour classer chaque mot dans sa bonne déclinaison (12 mots tirés au sort).</p>
     </div>
     <div id="score-pill">Score : <span id="score-value">0/0</span></div>
   </div>
@@ -51,25 +51,58 @@
 
   <div class="quiz-actions">
     <button class="btn primary" id="validate-btn">Valider mon tri</button>
-    <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer</button>
+    <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer (nouveau tirage)</button>
   </div>
 
 <script>
   const dataset = {
     buckets: [
-      { id: "dec1", label: "1ère déclinaison (-ae)" },
-      { id: "dec2m", label: "2e déclinaison Masc./Fém. (-i)" },
-      { id: "dec2n", label: "2e déclinaison Neutre (-i)" }
+      { id: "dec1", label: "1ère déclinaison (Génitif -ae)" },
+      { id: "dec2", label: "2e déclinaison (Génitif -i)" },
+      { id: "dec3", label: "3e déclinaison (Génitif -is)" },
+      { id: "dec4", label: "4e déclinaison (Génitif -us)" },
+      { id: "dec5", label: "5e déclinaison (Génitif -ei)" }
     ],
     items: [
-      { word: "vita, ae, f. (la vie)", bucket: "dec1" },
-      { word: "dominus, i, m. (le maître)", bucket: "dec2m" },
-      { word: "rosa, ae, f. (la rose)", bucket: "dec1" },
-      { word: "bellum, i, n. (la guerre)", bucket: "dec2n" },
-      { word: "puer, i, m. (l'enfant)", bucket: "dec2m" },
-      { word: "aqua, ae, f. (l'eau)", bucket: "dec1" },
-      { word: "templum, i, n. (le temple)", bucket: "dec2n" },
-      { word: "amicus, i, m. (l'ami)", bucket: "dec2m" }
+      // 1ère déclinaison (-ae)
+      { word: "vita, ae (la vie)", bucket: "dec1" },
+      { word: "rosa, ae (la rose)", bucket: "dec1" },
+      { word: "aqua, ae (l'eau)", bucket: "dec1" },
+      { word: "silva, ae (la forêt)", bucket: "dec1" },
+      { word: "puella, ae (la jeune fille)", bucket: "dec1" },
+      { word: "terra, ae (la terre)", bucket: "dec1" },
+
+      // 2e déclinaison (-i)
+      { word: "dominus, i (le maître)", bucket: "dec2" },
+      { word: "bellum, i (la guerre)", bucket: "dec2" },
+      { word: "puer, i (l'enfant)", bucket: "dec2" },
+      { word: "amicus, i (l'ami)", bucket: "dec2" },
+      { word: "templum, i (le temple)", bucket: "dec2" },
+      { word: "ager, agri (le champ)", bucket: "dec2" },
+
+      // 3e déclinaison (-is)
+      { word: "rex, regis (le roi)", bucket: "dec3" },
+      { word: "homo, hominis (l'homme)", bucket: "dec3" },
+      { word: "corpus, corporis (le corps)", bucket: "dec3" },
+      { word: "urbs, urbis (la ville)", bucket: "dec3" },
+      { word: "civis, civis (le citoyen)", bucket: "dec3" },
+      { word: "nomen, nominis (le nom)", bucket: "dec3" },
+
+      // 4e déclinaison (-us)
+      { word: "manus, us (la main)", bucket: "dec4" },
+      { word: "domus, us (la maison)", bucket: "dec4" },
+      { word: "exercitus, us (l'armée)", bucket: "dec4" },
+      { word: "vultus, us (le visage)", bucket: "dec4" },
+      { word: "fructus, us (le fruit)", bucket: "dec4" },
+      { word: "cornu, us (la corne)", bucket: "dec4" },
+
+      // 5e déclinaison (-ei)
+      { word: "res, rei (la chose)", bucket: "dec5" },
+      { word: "dies, diei (le jour)", bucket: "dec5" },
+      { word: "fides, fidei (la foi / confiance)", bucket: "dec5" },
+      { word: "spes, spei (l'espoir)", bucket: "dec5" },
+      { word: "facies, faciei (la figure / visage)", bucket: "dec5" },
+      { word: "acies, aciei (la pointe / armée)", bucket: "dec5" }
     ]
   };
 
@@ -79,6 +112,8 @@
   const retBtn = document.getElementById("retry-btn");
   const scorePill = document.getElementById("score-pill");
   const scoreValue = document.getElementById("score-value");
+  
+  let currentSelectionCount = 12; // Nombre de mots affichés par session
 
   function init() {
     pool.innerHTML = "";
@@ -87,7 +122,7 @@
     retBtn.style.display = "none";
     valBtn.style.display = "inline-block";
 
-    // Build Buckets
+    // Générer les 5 bacs de réception
     dataset.buckets.forEach(b => {
       const bEl = document.createElement("div");
       bEl.className = "sort-bucket";
@@ -107,6 +142,7 @@
       bucketsContainer.appendChild(bEl);
     });
 
+    // Rendre la zone centrale réceptrice (pour pouvoir remettre un mot au milieu)
     pool.addEventListener("dragover", e => e.preventDefault());
     pool.addEventListener("drop", e => {
       e.preventDefault();
@@ -115,9 +151,12 @@
       if (itemEl) pool.appendChild(itemEl);
     });
 
-    // Generate Shuffled Items
-    const shuffled = [...dataset.items].sort(() => Math.random() - 0.5);
-    shuffled.forEach((item, index) => {
+    // Tirer au sort 12 mots parmi les 30 du dataset global
+    const shuffledItems = [...dataset.items].sort(() => Math.random() - 0.5);
+    const selectedItems = shuffledItems.slice(0, currentSelectionCount);
+
+    // Générer les étiquettes de mots
+    selectedItems.forEach((item, index) => {
       const itemEl = document.createElement("div");
       itemEl.className = "sort-item";
       itemEl.draggable = true;
@@ -147,11 +186,13 @@
       } else {
         itemEl.classList.add("incorrect");
         const target = dataset.buckets.find(b => b.id === correctBucket);
-        itemEl.innerHTML += ` <span style="font-size:0.75rem; font-weight:normal; display:block; opacity:0.8; margin-top:2px;">(Attendu : ${target.label.split(' ')[0]})</span>`;
+        // Indique clairement le numéro de déclinaison attendu en cas d'erreur
+        const decNumber = target.label.split(' ')[0]; 
+        itemEl.innerHTML += ` <span style="font-size:0.75rem; font-weight:normal; display:block; opacity:0.8; margin-top:2px;">(Attendu : ${decNumber})</span>`;
       }
     });
 
-    scoreValue.textContent = `${score}/${dataset.items.length}`;
+    scoreValue.textContent = `${score}/${items.length}`;
     scorePill.style.display = "inline-flex";
     valBtn.style.display = "none";
     retBtn.style.display = "inline-block";
