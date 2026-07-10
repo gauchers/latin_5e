@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root{
+    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+    --umber:#2B1B12; --ink:#3A2A1F; --ink-soft:#7A6A56; --good:#3F7A52; --bad:#B23A2E;
+    --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+  }
+  body { margin:0; font-family:var(--sans); color:var(--ink); background:transparent; }
+  .quiz-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.4rem; gap:1rem;}
+  .quiz-title { font-family:var(--serif); font-weight:700; font-size:1.5rem; color:var(--brick-dark); margin:0; }
+  .quiz-sub { font-size:0.85rem; color:var(--ink-soft); margin:0.2rem 0 0; }
+  #score-pill { display:none; align-items:center; background:var(--umber); color:var(--cream); padding:0.5rem 1rem; border-radius:999px; font-weight:700; font-size:0.9rem; }
+
+  .text-block { background:var(--cream); border-radius:12px; padding:1.5rem; line-height:2.1; font-size:1.05rem; border:1px solid var(--parch-dark); }
+  
+  .inline-drop { display:inline-block; min-width:110px; height:1.8rem; border-bottom:2px dashed var(--brick); vertical-align:middle; text-align:center; line-height:1.2; font-weight:700; color:var(--brick); margin:0 0.3rem; }
+  .inline-drop.drag-over { background:rgba(201,162,39,0.15); }
+  .inline-drop.correct { border-bottom-color:var(--good); color:var(--good); }
+  .inline-drop.incorrect { border-bottom-color:var(--bad); color:var(--bad); text-decoration:line-through; }
+
+  .pool { display:flex; flex-wrap:wrap; gap:0.6rem; padding:1rem; background:var(--parch-dark); border-radius:12px; min-height:3.5rem; margin-bottom:1.5rem; justify-content:center; }
+  .word-tag { background:var(--cream); border:1px solid var(--ink-soft); padding:0.2rem 0.6rem; border-radius:6px; font-size:0.88rem; font-weight:600; cursor:grab; line-height:1.4; }
+
+  .quiz-actions { display:flex; gap:0.8rem; margin-top:1.2rem;}
+  .btn { border:none; border-radius:10px; padding:0.75rem 1.4rem; font-weight:700; font-size:0.9rem; cursor:pointer; }
+  .btn.primary { background:var(--brick); color:var(--cream); }
+  .btn.primary:hover { background:var(--brick-dark); }
+  .btn.ghost { background:transparent; color:var(--brick); border:2px solid var(--brick); }
+  .btn.ghost:hover { background:var(--brick); color:var(--cream); }
+</style>
+</head>
+<body>
+
+  <div class="quiz-head">
+    <div>
+      <p class="quiz-title">Origines de la Langue</p>
+      <p class="quiz-sub">Complète le texte de synthèse en glissant les mots-clés de la boîte dans leurs espaces respectifs.</p>
+    </div>
+    <div id="score-pill">Score : <span id="score-value">0/0</span></div>
+  </div>
+
+  <div class="pool" id="word-pool"></div>
+
+  <div class="text-block">
+    Le latin appartient à la vaste famille des langues <div class="inline-drop" data-answer="indo-européennes"></div>. 
+    Contrairement au français moderne, c'est une langue dite « à flexions » où la fonction grammaticale d'un nom est dictée par sa terminaison, un système qu'on appelle les <div class="inline-drop" data-answer="cas"></div>. 
+    Notre langue moderne ne découle pas du latin littéraire classique, mais du latin <div class="inline-drop" data-answer="vulgaire"></div>, parlé par les soldats et le peuple. 
+    Au fil des siècles, cette évolution a donné naissance aux langues <div class="inline-drop" data-answer="romanes"></div> comme le français, l'italien ou l'espagnol.
+  </div>
+
+  <div class="quiz-actions">
+    <button class="btn primary" id="validate-btn">Vérifier mon texte</button>
+    <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer</button>
+  </div>
+
+<script>
+  const words = ["indo-européennes", "cas", "vulgaire", "romanes"];
+  const pool = document.getElementById("word-pool");
+  const valBtn = document.getElementById("validate-btn");
+  const retBtn = document.getElementById("retry-btn");
+  const scorePill = document.getElementById("score-pill");
+
+  function init() {
+    pool.innerHTML = "";
+    scorePill.style.display = "none"; retBtn.style.display = "none"; valBtn.style.display = "inline-block";
+
+    document.querySelectorAll(".inline-drop").forEach(drop => {
+      drop.innerHTML = "";
+      drop.className = "inline-drop";
+      drop.addEventListener("dragover", e => e.preventDefault());
+      drop.addEventListener("dragenter", () => drop.classList.add("drag-over"));
+      drop.addEventListener("dragleave", () => drop.classList.remove("drag-over"));
+      drop.addEventListener("drop", e => {
+        e.preventDefault(); drop.classList.remove("drag-over");
+        const text = e.dataTransfer.getData("text/plain");
+        // Si la zone contient déjà un mot, on ne fait rien
+        if(drop.innerText === "") drop.innerText = text;
+      });
+    });
+
+    pool.addEventListener("dragover", e => e.preventDefault());
+    pool.addEventListener("drop", e => {
+       e.preventDefault();
+       // Optionnel : permettre de replacer le mot dans la boîte s'il l'on s'est trompé
+    });
+
+    // Générer et mélanger les mots étiquettes
+    [...words].sort(() => Math.random() - 0.5).forEach((word, idx) => {
+      const tag = document.createElement("div");
+      tag.className = "word-tag"; tag.draggable = true; tag.id = `tag-${idx}`;
+      tag.textContent = word;
+      tag.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", word));
+      pool.appendChild(tag);
+    });
+  }
+
+  valBtn.addEventListener("click", () => {
+    let score = 0;
+    const drops = document.querySelectorAll(".inline-drop");
+    
+    drops.forEach(drop => {
+      const userWord = drop.innerText.trim();
+      const correctWord = drop.dataset.answer;
+
+      if (userWord === correctWord) {
+        score++; drop.classList.add("correct");
+      } else {
+        drop.classList.add("incorrect");
+        drop.innerHTML += ` <span style="font-size:0.75rem; font-weight:normal; color:var(--brick);">(${correctWord})</span>`;
+      }
+    });
+
+    document.getElementById("score-value").textContent = `${score}/${words.length}`;
+    scorePill.style.display = "inline-flex"; valBtn.style.display = "none"; retBtn.style.display = "inline-block";
+  });
+
+  retBtn.addEventListener("click", init);
+  init();
+</script>
+</body>
+</html>
