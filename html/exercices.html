@@ -11,7 +11,6 @@
     --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
     --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
     --umber:#2B1B12; --umber-light:#3E2A1C; --ink:#3A2A1F; --ink-soft:#7A6A56;
-    --good:#3F7A52; --bad:#B23A2E;
     --radius:16px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
   }
   *{box-sizing:border-box;}
@@ -38,51 +37,40 @@
   p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
 
   /* ---- challenge cards ---- */
-  .challenges{display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin:1.8rem 0 2.6rem;}
-  @media (max-width:960px){.challenges{grid-template-columns:repeat(2, 1fr);}}
-  @media (max-width:540px){.challenges{grid-template-columns:1fr; max-width:26rem;}}
+  .challenges{display:grid; grid-template-columns:repeat(5, 1fr); gap:1rem; margin:1.8rem 0 2.6rem;}
+  @media (max-width:960px){.challenges{grid-template-columns:repeat(3, 1fr);}}
+  @media (max-width:640px){.challenges{grid-template-columns:repeat(2, 1fr);}}
+  @media (max-width:420px){.challenges{grid-template-columns:1fr;} }
+  
   .challenge{
     background:var(--parch); border:2px solid transparent; border-radius:var(--radius); padding:1.2rem;
-    text-align:left; display:flex; flex-direction:column; gap:0.4rem;
+    text-align:left; display:flex; flex-direction:column; gap:0.4rem; text-decoration: none;
     transition:border-color .15s ease, transform .15s ease;
   }
   .challenge:hover{transform:translateY(-3px);}
   .challenge.active{border-color:var(--brick); background:var(--cream); box-shadow:0 10px 24px rgba(43,27,18,0.1);}
-  @media (prefers-reduced-motion:reduce){.challenge{transition:none;} .challenge:hover{transform:none;}}
   .ch-num{font-family:var(--serif); font-weight:700; color:var(--gold); font-size:1.15rem;}
   .challenge.active .ch-num{color:var(--brick);}
   .ch-title{font-family:var(--serif); font-weight:700; font-size:1.2rem; color:var(--umber); margin:0;}
   .ch-desc{font-size:0.8rem; color:var(--ink-soft); margin:0; line-height:1.45; flex-grow:1;}
-  .ch-count{font-size:0.72rem; font-weight:700; color:var(--brick); letter-spacing:0.04em; text-transform:uppercase; margin-top:0.2rem;}
 
-  /* ---- quiz area ---- */
-  .quiz-panel{background:var(--parch); border-radius:var(--radius); padding:1.8rem;box-shadow:0 12px 30px rgba(43,27,18,0.1);}
-  .quiz-head{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem;}
-  .quiz-title{font-family:var(--serif); font-weight:700; font-size:1.5rem; color:var(--brick-dark); margin:0;}
-  .quiz-sub{font-size:0.85rem; color:var(--ink-soft); margin:0.2rem 0 0;}
-  #score-pill{display:none; align-items:center; gap:0.5rem; background:var(--umber); color:var(--cream); padding:0.5rem 1rem; border-radius:999px; font-weight:700; font-size:0.9rem;}
-
-  .q-block{background:var(--cream); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:0.9rem;}
-  .q-text{font-weight:700; font-size:0.98rem; margin:0 0 0.7rem; color:var(--ink);}
-  .q-opts{display:grid; gap:0.5rem;}
-  .q-opt{display:flex; align-items:center; gap:0.6rem; padding:0.55rem 0.7rem; border-radius:9px; border:2px solid var(--parch-dark); font-size:0.9rem; cursor:pointer; background:var(--cream);}
-  .q-opt:hover{border-color:var(--gold);}
-  .q-opt input{accent-color:var(--brick); width:16px; height:16px; flex-shrink:0;}
-  .q-opt.correct{border-color:var(--good); background:#EAF3EC;}
-  .q-opt.incorrect{border-color:var(--bad); background:#FBEAE8;}
-  .q-feedback{font-size:0.82rem; margin:0.55rem 0 0; font-weight:600;}
-  .q-feedback.good{color:var(--good);}
-  .q-feedback.bad{color:var(--bad);}
-
-  .quiz-actions{display:flex; gap:0.8rem; margin-top:0.8rem; flex-wrap:wrap;}
-  .btn{border:none; border-radius:10px; padding:0.75rem 1.4rem; font-weight:700; font-size:0.9rem;}
-  .btn.primary{background:var(--brick); color:var(--cream);}
-  .btn.primary:hover{background:var(--brick-dark);}
-  .btn.primary:disabled{background:var(--parch-dark); color:var(--ink-soft); cursor:not-allowed;}
-  .btn.ghost{background:transparent; color:var(--brick); border:2px solid var(--brick);}
-  .btn.ghost:hover{background:var(--brick); color:var(--cream);}
-
-  .empty{color:var(--ink-soft); font-size:0.92rem;}
+  /* ---- Container de l'exercice ---- */
+  .quiz-panel{background:var(--parch); border-radius:var(--radius); padding:1rem; box-shadow:0 12px 30px rgba(43,27,18,0.1); min-height: 300px;}
+  #quiz-frame {
+    width: 100%;
+    min-height: 500px; /* S'adaptera en hauteur ou défilera à l'intérieur */
+    border: none;
+    border-radius: calc(var(--radius) - 4px);
+    display: none;
+  }
+  .placeholder-text {
+    color: var(--ink-soft);
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.1rem;
+    font-family: var(--serif);
+    font-style: italic;
+  }
 </style>
 </head>
 <body>
@@ -105,194 +93,64 @@
     <header class="hero">
       <div class="eyebrow">La Palestra</div>
       <h1 class="title">Exercices en ligne</h1>
-      <p class="lede">Quatre épreuves pour t'entraîner. Choisis-en une, réponds, puis valide pour découvrir ton score immédiatement.</p>
+      <p class="lede">Des épreuves variées pour t'entraîner. Choisis un défi, réponds ou classe les éléments, puis valide pour découvrir ton score immédiatement.</p>
     </header>
 
-    <div class="challenges" id="challenges"></div>
+    <div class="challenges">
+      <a href="defis/vocabulaire.html" class="challenge" target="quiz-target">
+        <span class="ch-num">I</span>
+        <p class="ch-title">Vocabulaire</p>
+        <p class="ch-desc">Que signifient ces mots latins ?</p>
+      </a>
+      <a href="defis/histoire.html" class="challenge" target="quiz-target">
+        <span class="ch-num">II</span>
+        <p class="ch-title">Histoire Romaine</p>
+        <p class="ch-desc">Les grands repères et événements de la Rome Antique</p>
+      </a>
+      <a href="defis/langue.html" class="challenge" target="quiz-target">
+        <span class="ch-num">III</span>
+        <p class="ch-title">Histoire de la Langue</p>
+        <p class="ch-desc">L'origine de l'indo-européen et l'évolution du latin</p>
+      </a>
+      <a href="defis/etymologie.html" class="challenge" target="quiz-target">
+        <span class="ch-num">IV</span>
+        <p class="ch-title">Étymologie</p>
+        <p class="ch-desc">Retrouve la racine latine de chaque mot français</p>
+      </a>
+      <a href="defis/declinaisons.html" class="challenge" target="quiz-target">
+        <span class="ch-num">V</span>
+        <p class="ch-title">Les Déclinaisons</p>
+        <p class="ch-desc">Classe les entrées de dictionnaire dans leur bonne déclinaison.</p>
+      </a>
+    </div>
 
     <section class="quiz-panel">
-      <div class="quiz-head">
-        <div>
-          <p class="quiz-title" id="quiz-title">Sélectionne une épreuve</p>
-          <p class="quiz-sub" id="quiz-sub">Choisis un défi ci-dessus pour afficher les questions.</p>
-        </div>
-        <div id="score-pill">Score : <span id="score-value">0/0</span></div>
-      </div>
-      <div id="quiz-body"></div>
-      <div class="quiz-actions" id="quiz-actions" style="display:none;">
-        <button class="btn primary" id="validate-btn">Valider mes réponses</button>
-        <button class="btn ghost" id="retry-btn" style="display:none;">Recommencer</button>
-      </div>
+      <div id="placeholder" class="placeholder-text">Sélectionne une épreuve ci-dessus pour commencer le défi...</div>
+      <iframe name="quiz-target" id="quiz-frame" src="about:blank"></iframe>
     </section>
   </div>
 
 <script>
-  const quizzes = {
-    vocab: {
-      title: "Vocabulaire",
-      sub: "Que signifient ces mots latins ?",
-      questions: [
-        { q: "« aqua » signifie…", opts: ["l'eau", "le feu", "la terre", "le vent"], a: 0 },
-        { q: "« pater » signifie…", opts: ["le père", "le frère", "le fils", "l'oncle"], a: 0 },
-        { q: "« mater » signifie…", opts: ["la sœur", "la mère", "la fille", "la tante"], a: 1 },
-        { q: "« filius » signifie…", opts: ["le père", "le fils", "le frère", "l'ami"], a: 1 },
-        { q: "« amicus » signifie…", opts: ["l'ami", "le voisin", "le soldat", "le maître"], a: 0 },
-        { q: "« puella » signifie…", opts: ["la femme", "la jeune fille", "la mère", "la reine"], a: 1 },
-        { q: "« servus » signifie…", opts: ["le roi", "le soldat", "l'esclave", "le citoyen"], a: 2 },
-        { q: "« via » signifie…", opts: ["la route", "la rivière", "la ville", "la maison"], a: 0 },
-        { q: "« terra » signifie…", opts: ["la mer", "la montagne", "la terre", "la forêt"], a: 2 },
-        { q: "« luna » signifie…", opts: ["la lune", "le soleil", "l'étoile", "le ciel"], a: 0 },
-        { q: "« sol » signifie…", opts: ["la lune", "le soleil", "le ciel", "le feu"], a: 1 },
-        { q: "« rosa » signifie…", opts: ["la fleur", "la rose", "la feuille", "la couronne"], a: 1 }
-      ]
-    },
-    histoire: {
-      title: "Histoire Romaine",
-      sub: "Les grands repères et événements de la Rome Antique",
-      questions: [
-        { q: "Rome a été fondée, selon la légende, en…", opts: ["753 av. J.-C.", "27 av. J.-C.", "476 apr. J.-C.", "117 apr. J.-C."], a: 0 },
-        { q: "Quelle série de guerres permet à Rome de dominer la Méditerranée occidentale entre 264 et 146 av. J.-C. ?", opts: ["Les guerres de Gaule", "Les guerres puniques", "Les guerres civiles", "Les guerres d'Italie"], a: 1 },
-        { q: "Qui conquiert la Gaule lors de la campagne des années 58-51 av. J.-C. ?", opts: ["Auguste", "Cicéron", "Jules César", "Virgile"], a: 2 },
-        { q: "En quelle année Auguste fonde-t-il l'Empire romain ?", opts: ["753 av. J.-C.", "51 av. J.-C.", "27 av. J.-C.", "117 apr. J.-C."], a: 2 },
-        { q: "À son apogée en 117 apr. J.-C., de quel pays à quel pays s'étend l'Empire romain ?", opts: ["De la Gaule jusqu'à l'Égypte", "De l'Écosse jusqu'à l'Irak", "De l'Espagne jusqu'à la Russie", "De la Bretagne jusqu'à la Germanie"], a: 1 },
-        { q: "L'Empire romain d'Occident s'effondre en…", opts: ["27 av. J.-C.", "117 apr. J.-C.", "476 apr. J.-C.", "842 apr. J.-C."], a: 2 }
-      ]
-    },
-    langue: {
-      title: "Histoire de la Langue",
-      sub: "L'origine de l'indo-européen et l'évolution du latin classique et vulgaire",
-      questions: [
-        { q: "Il y a 5000 ans, d'où venaient les peuples qui parlaient la langue commune appelée l'indo-européen ?", opts: ["Des côtes de la Méditerranée", "Des steppes d'Eurasie", "De l'Italie centrale", "D'Afrique du Nord"], a: 1 },
-        { q: "Le latin appartient à quel groupe spécifique au sein de la famille indo-européenne ?", opts: ["Les langues celtiques", "Les langues germaniques", "Les langues italiques", "Les langues slaves"], a: 2 },
-        { q: "À sa naissance, le latin n'est qu'un petit dialecte parlé dans quelle région entourant Rome ?", opts: ["Le Latium", "L'Étrurie", "La Campanie", "L'Ombrie"], a: 0 },
-        { q: "Parmi ces langues contemporaines de la naissance de Rome en Italie, laquelle n'est PAS du latin ?", opts: ["L'osque", "L'ombrien", "L'étrusque", "Toutes ces réponses"], a: 3 },
-        { q: "Dans l'Empire, quels sont les trois piliers où le latin s'impose comme outil d'unification ?", opts: ["Le commerce, la marine, le théâtre", "L'armée, l'administration, l'école et la culture", "La religion chrétienne, l'agriculture, les jeux", "La diplomatie, la monnaie, la justice urbaine"], a: 1 },
-        { q: "Quel visage du latin correspond à la langue soignée, écrite par Cicéron, César ou Virgile ?", opts: ["Le latin vulgaire", "Le latin classique", "Le néo-latin", "Le latin vernaculaire"], a: 1 },
-        { q: "D'où proviennent directement le français et les autres langues romanes ?", opts: ["Du latin classique des élites", "Du latin vulgaire parlé par le peuple au quotidien", "De l'étrusque écrit", "Des langues germaniques"], a: 1 },
-        { q: "Après la chute de Rome en 476, qui a sauvé les textes anciens de l'oubli dans les monastères ?", opts: ["Les marchands ambulants", "Les moines et les copistes", "Les soldats de l'armée", "Les premiers rois barbares"], a: 1 },
-        { q: "Quel ouvrage de physique d'Isaac Newton a été publié en latin en 1687 ?", opts: ["Principia Mathematica", "De Revolutionibus", "Discours de la Méthode", "De Natura"], a: 0 },
-        { q: "Quel texte de 842 est considéré comme le premier texte officiel en langue romane et l'acte de naissance du français ?", opts: ["La Vulgate", "Les Serments de Strasbourg", "La charte des universités", "Le traité de Verdun"], a: 1 },
-        { q: "Environ quel pourcentage du vocabulaire français provient directement ou indirectement du latin ?", opts: ["Plus de 20%", "Plus de 50%", "Plus de 80%", "Près de 100%"], a: 2 }
-      ]
-    },
-    etymologie: {
-      title: "Étymologie",
-      sub: "Retrouve la racine latine de chaque mot français",
-      questions: [
-        { q: "« aquatique » vient du latin…", opts: ["aqua", "mater", "insula", "nox"], a: 0 },
-        { q: "« maternel » vient du latin…", opts: ["pater", "mater", "amicus", "aqua"], a: 1 },
-        { q: "« insulaire » vient du latin…", opts: ["nox", "amicus", "insula", "mater"], a: 2 },
-        { q: "« nocturne » vient du latin…", opts: ["nox", "aqua", "pater", "insula"], a: 0 },
-        { q: "« paternel » vient du latin…", opts: ["mater", "pater", "nox", "amicus"], a: 1 },
-        { q: "« amical » vient du latin…", opts: ["insula", "aqua", "mater", "amicus"], a: 3 },
-      ]
-    }
-  };
+  const cards = document.querySelectorAll('.challenge');
+  const frame = document.getElementById('quiz-frame');
+  const placeholder = document.getElementById('placeholder');
 
-  const meta = [
-    { key: "vocab", num: "I" },
-    { key: "histoire", num: "II" },
-    { key: "langue", num: "III" },
-    { key: "etymologie", num: "IV" },
-  ];
+  cards.forEach(card => {
+    card.addEventListener('click', function() {
+      // Gestion visuelle de la carte active
+      cards.forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Affichage de l'iframe
+      placeholder.style.display = 'none';
+      frame.style.display = 'block';
 
-  const challengesEl = document.getElementById("challenges");
-  const quizTitle = document.getElementById("quiz-title");
-  const quizSub = document.getElementById("quiz-sub");
-  const quizBody = document.getElementById("quiz-body");
-  const quizActions = document.getElementById("quiz-actions");
-  const validateBtn = document.getElementById("validate-btn");
-  const retryBtn = document.getElementById("retry-btn");
-  const scorePill = document.getElementById("score-pill");
-  const scoreValue = document.getElementById("score-value");
-
-  let currentKey = null;
-
-  function buildCards(){
-    challengesEl.innerHTML = "";
-    meta.forEach(m => {
-      const quiz = quizzes[m.key];
-      const card = document.createElement("button");
-      card.className = "challenge";
-      card.innerHTML = `
-        <span class="ch-num">${m.num}</span>
-        <p class="ch-title">${quiz.title}</p>
-        <p class="ch-desc">${quiz.sub}</p>
-        <span class="ch-count">${quiz.questions.length} questions</span>
-      `;
-      card.addEventListener("click", () => loadQuiz(m.key));
-      challengesEl.appendChild(card);
+      // Petit scroll fluide vers l'exercice
+      setTimeout(() => {
+        frame.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
     });
-  }
-
-  function loadQuiz(key){
-    currentKey = key;
-    const quiz = quizzes[key];
-    [...challengesEl.children].forEach((c, i) => c.classList.toggle("active", meta[i].key === key));
-
-    quizTitle.textContent = quiz.title;
-    quizSub.textContent = quiz.sub;
-    scorePill.style.display = "none";
-    retryBtn.style.display = "none";
-    validateBtn.style.display = "inline-block";
-    validateBtn.disabled = false;
-    quizActions.style.display = "flex";
-
-    quizBody.innerHTML = "";
-    quiz.questions.forEach((q, qi) => {
-      const block = document.createElement("div");
-      block.className = "q-block";
-      block.dataset.qi = qi;
-      const opts = q.opts.map((opt, oi) => `
-        <label class="q-opt" data-oi="${oi}">
-          <input type="radio" name="q${qi}" value="${oi}">
-          <span>${opt}</span>
-        </label>
-      `).join("");
-      block.innerHTML = `<p class="q-text">${qi + 1}. ${q.q}</p><div class="q-opts">${opts}</div><p class="q-feedback" style="display:none;"></p>`;
-      quizBody.appendChild(block);
-    });
-
-    quizBody.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  function gradeQuiz(){
-    const quiz = quizzes[currentKey];
-    let score = 0;
-    const blocks = [...quizBody.querySelectorAll(".q-block")];
-
-    blocks.forEach((block, qi) => {
-      const q = quiz.questions[qi];
-      const checked = block.querySelector("input:checked");
-      const feedback = block.querySelector(".q-feedback");
-      const optEls = [...block.querySelectorAll(".q-opt")];
-      optEls.forEach(el => el.querySelectorAll("input").forEach(i => i.disabled = true));
-
-      const chosen = checked ? parseInt(checked.value, 10) : null;
-      optEls[q.a].classList.add("correct");
-
-      if (chosen === q.a){
-        score++;
-        feedback.textContent = "Bonne réponse !";
-        feedback.className = "q-feedback good";
-      } else {
-        if (chosen !== null) optEls[chosen].classList.add("incorrect");
-        feedback.textContent = chosen === null ? "Pas de réponse choisie." : "Ce n'est pas ça.";
-        feedback.className = "q-feedback bad";
-      }
-      feedback.style.display = "block";
-    });
-
-    scoreValue.textContent = `${score}/${quiz.questions.length}`;
-    scorePill.style.display = "inline-flex";
-    validateBtn.style.display = "none";
-    retryBtn.style.display = "inline-block";
-  }
-
-  validateBtn.addEventListener("click", gradeQuiz);
-  retryBtn.addEventListener("click", () => loadQuiz(currentKey));
-
-  buildCards();
+  });
 </script>
 
 </body>
