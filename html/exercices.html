@@ -11,7 +11,7 @@
     --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
     --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
     --umber:#2B1B12; --umber-light:#3E2A1C; --ink:#3A2A1F; --ink-soft:#7A6A56;
-    --radius:16px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+    --radius:12px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
   }
   *{box-sizing:border-box;}
   body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--cream); position:relative; overflow-x:hidden;}
@@ -21,8 +21,8 @@
 
   .blob{position:absolute; border-radius:50%; z-index:0; pointer-events:none;}
   
-  /* Élargissement de la page pour les grands écrans */
-  .page{position:relative; z-index:1; max-width:1300px; margin:0 auto; padding:0 1.5rem 4rem;}
+  /* Élargissement MAXIMAL de la page pour les exercices */
+  .page{position:relative; z-index:1; max-width:1500px; width: 96%; margin:0 auto; padding:0 0 4rem;}
 
   .topbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:1.6rem 0 1rem;}
   .back{display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.88rem; text-decoration:none; color:var(--ink-soft);}
@@ -33,72 +33,136 @@
   .tab.active{background:var(--brick); color:var(--cream);}
   .tab:not(.active):hover{color:var(--brick);}
 
-  header.hero{padding:1.5rem 0 1rem;}
+  header.hero{padding:1rem 0 2rem;}
   .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.26em; color:var(--brick); text-transform:uppercase;}
-  h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2.4rem, 5.5vw, 3.3rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
-  p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
+  h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2rem, 4vw, 2.8rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
+  p.lede{font-size:1rem; color:var(--ink-soft); max-width:45rem; line-height:1.5; margin:0;}
 
-  /* ---- Nouvelle structure en 2 colonnes ---- */
+  /* ---- Nouvelle structure en 2 colonnes (Ergonomique) ---- */
   .main-layout {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 2rem;
-    margin-top: 2rem;
+    grid-template-columns: 260px 1fr; /* Menu plus fin pour maximiser l'iframe */
+    gap: 1.5rem;
     align-items: start;
   }
 
-  /* ---- Menu d'exercices à gauche ---- */
-  .challenges{
+  /* ---- Menu d'exercices déroulant à gauche ---- */
+  .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.8rem;
   }
   
-  .challenge{
-    background:var(--parch); border:2px solid transparent; border-radius:var(--radius); padding:1rem 1.2rem;
-    text-align:left; display:flex; flex-direction:column; gap:0.2rem; text-decoration: none;
-    transition:border-color .15s ease, background-color .15s ease;
+  /* Styles des accordéons */
+  .category {
+    background: var(--parch);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 10px rgba(43,27,18,0.05);
+    overflow: hidden;
   }
-  .challenge:hover{ background: var(--parch-dark); }
-  .challenge.active{border-color:var(--brick); background:var(--cream); box-shadow:0 8px 20px rgba(43,27,18,0.08);}
-  .ch-num{font-family:var(--serif); font-weight:700; color:var(--gold); font-size:1.15rem;}
-  .challenge.active .ch-num{color:var(--brick);}
-  .ch-title{font-family:var(--serif); font-weight:700; font-size:1.15rem; color:var(--umber); margin:0;}
-  .ch-desc{font-size:0.78rem; color:var(--ink-soft); margin:0; line-height:1.4; flex-grow:1;}
+  
+  .category summary {
+    padding: 1rem 1.2rem;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--umber);
+    cursor: pointer;
+    background: var(--parch-dark);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  
+  .category summary:hover { background: #dcc8a4; }
+  .category summary::-webkit-details-marker { display: none; } /* Cache la flèche native sur Safari */
+  
+  .category summary::after {
+    content: '▼';
+    font-size: 0.8rem;
+    color: var(--brick);
+    transition: transform 0.3s ease;
+  }
+  .category[open] summary::after {
+    transform: rotate(180deg);
+  }
 
-  /* ---- Conteneur d'exercice agrandi à droite ---- */
-  .quiz-panel{
-    background:var(--parch); 
-    border-radius:var(--radius); 
-    padding:1.2rem; 
-    box-shadow:0 12px 30px rgba(43,27,18,0.1); 
-    min-height: 550px;
+  .category-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: var(--parch);
   }
+
+  /* Liens / Boutons d'exercices repensés */
+  .challenge {
+    background: var(--cream);
+    border: 1px solid rgba(156, 43, 31, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .challenge:hover { 
+    background: #FFFFFF; 
+    border-color: var(--brick);
+    transform: translateX(4px);
+  }
+  .challenge.active {
+    border-color: var(--brick);
+    background: #FFFFFF;
+    border-left: 5px solid var(--brick);
+    box-shadow: 0 4px 12px rgba(43,27,18,0.08);
+  }
+  .ch-title { font-weight: 600; font-size: 0.95rem; color: var(--umber); margin: 0; }
+  .challenge.active .ch-title { color: var(--brick); font-weight: 700; }
+  .ch-desc { font-size: 0.75rem; color: var(--ink-soft); margin: 0; line-height: 1.3; }
+
+  /* ---- Conteneur d'exercice MAXIMISÉ à droite ---- */
+  .quiz-panel {
+    background: #FFFFFF; 
+    border-radius: var(--radius); 
+    box-shadow: 0 12px 30px rgba(43,27,18,0.1); 
+    border: 2px solid var(--parch-dark);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
   #quiz-frame {
     width: 100%;
-    min-height: 550px;
+    min-height: 75vh; /* Prend 75% de la hauteur de l'écran pour un confort maximal */
+    height: 100%;
     border: none;
-    border-radius: calc(var(--radius) - 4px);
     display: none;
     background: transparent;
   }
+  
   .placeholder-text {
     color: var(--ink-soft);
     text-align: center;
-    padding: 8rem 2rem;
-    font-size: 1.2rem;
+    padding: 10rem 2rem;
+    font-size: 1.3rem;
     font-family: var(--serif);
     font-style: italic;
+    background: var(--parch);
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* ---- Adaptabilité mobile ---- */
-  @media (max-width: 850px) {
-    .main-layout {
-      grid-template-columns: 1fr;
-    }
-    .quiz-panel {
-      min-height: 450px;
-    }
+  @media (max-width: 900px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .quiz-panel, #quiz-frame, .placeholder-text { min-height: 60vh; }
   }
 </style>
 </head>
@@ -122,47 +186,73 @@
     <header class="hero">
       <div class="eyebrow">La Palestra</div>
       <h1 class="title">Exercices en ligne</h1>
-      <p class="lede">Des épreuves variées pour t'entraîner. Choisis un défi dans le menu de gauche, manipule les concepts, puis découvre ton score.</p>
+      <p class="lede">Sélectionnez une catégorie dans le menu pour dérouler les exercices. La zone de droite s'adaptera pour vous offrir un espace de travail optimal.</p>
     </header>
 
-    <!-- Zone principale scindée en deux colonnes -->
     <div class="main-layout">
       
-      <nav class="challenges">
-        <a href="defis/vocabulaire.html" class="challenge" target="quiz-target">
-          <span class="ch-num">I</span>
-          <p class="ch-title">Vocabulaire</p>
-          <p class="ch-desc">Que signifient ces mots latins ?</p>
-        </a>
-        <a href="defis/histoire.html" class="challenge" target="quiz-target">
-          <span class="ch-num">II</span>
-          <p class="ch-title">Histoire Romaine</p>
-          <p class="ch-desc">Les grands repères et événements de la Rome Antique</p>
-        </a>
-        <a href="defis/langue.html" class="challenge" target="quiz-target">
-          <span class="ch-num">III</span>
-          <p class="ch-title">Histoire de la Langue</p>
-          <p class="ch-desc">L'origine de l'indo-européen et l'évolution du latin</p>
-        </a>
-        <a href="defis/etymologie.html" class="challenge" target="quiz-target">
-          <span class="ch-num">IV</span>
-          <p class="ch-title">Étymologie</p>
-          <p class="ch-desc">Retrouve la racine latine de chaque mot français</p>
-        </a>
-        <a href="defis/declinaisons.html" class="challenge" target="quiz-target">
-          <span class="ch-num">V</span>
-          <p class="ch-title">Les Déclinaisons</p>
-          <p class="ch-desc">Classe les entrées de dictionnaire dans leur déclinaison.</p>
-        </a>
-        <a href="defis/texte_eutrope.html" class="challenge" target="quiz-target">
-          <span class="ch-num">VI</span>
-          <p class="ch-title">Compréhension et langue</p>
-          <p class="ch-desc">Retrouve dans le texte latin les mots français.</p>
-        </a>
+      <!-- MENU DÉROULANT (ACCORDÉONS) -->
+      <nav class="sidebar-menu">
+        
+        <!-- Catégorie : Civilisation -->
+        <details class="category" open> <!-- 'open' permet qu'il soit ouvert par défaut -->
+          <summary>Civilisation</summary>
+          <div class="category-content">
+            <a href="defis/histoire.html" class="challenge" target="quiz-target">
+              <p class="ch-title">Histoire Romaine</p>
+              <p class="ch-desc">Les grands repères et événements.</p>
+            </a>
+            <a href="defis/langue.html" class="challenge" target="quiz-target">
+              <p class="ch-title">Histoire de la Langue</p>
+              <p class="ch-desc">Origine de l'indo-européen et latin.</p>
+            </a>
+          </div>
+        </details>
+
+        <!-- Catégorie : Déclinaison -->
+        <details class="category">
+          <summary>Déclinaison</summary>
+          <div class="category-content">
+            <a href="defis/declinaisons.html" class="challenge" target="quiz-target">
+              <p class="ch-title">Les Déclinaisons</p>
+              <p class="ch-desc">Classe les entrées de dictionnaire.</p>
+            </a>
+          </div>
+        </details>
+
+        <!-- Catégorie : Textes -->
+        <details class="category">
+          <summary>Textes</summary>
+          <div class="category-content">
+            <a href="defis/texte_eutrope.html" class="challenge" target="quiz-target">
+              <p class="ch-title">Texte : Eutrope</p>
+              <p class="ch-desc">Compréhension et repérage latin/français.</p>
+            </a>
+          </div>
+        </details>
+
+        <!-- Catégorie : Français -->
+        <details class="category">
+          <summary>Français</summary>
+          <div class="category-content">
+            <a href="defis/vocabulaire.html" class="challenge" target="quiz-target">
+              <p class="ch-title">Vocabulaire</p>
+              <p class="ch-desc">Que signifient ces mots latins ?</p>
+            </a>
+            <a href="defis/etymologie.html" class="challenge" target="quiz-target">
+              <p class="ch-title">Étymologie</p>
+              <p class="ch-desc">Retrouve la racine latine des mots.</p>
+            </a>
+          </div>
+        </details>
+
       </nav>
 
+      <!-- ZONE D'EXERCICE MAXIMISÉE -->
       <section class="quiz-panel">
-        <div id="placeholder" class="placeholder-text">Sélectionne une épreuve dans le menu de gauche pour commencer le défi...</div>
+        <div id="placeholder" class="placeholder-text">
+          Sélectionne une épreuve dans le menu déroulant à gauche pour commencer...
+        </div>
         <iframe name="quiz-target" id="quiz-frame" src="about:blank"></iframe>
       </section>
 
@@ -173,21 +263,34 @@
   const cards = document.querySelectorAll('.challenge');
   const frame = document.getElementById('quiz-frame');
   const placeholder = document.getElementById('placeholder');
+  const detailsElements = document.querySelectorAll('.category');
+
+  // Comportement "Accordéon strict" optionnel (ferme les autres menus quand on en ouvre un)
+  detailsElements.forEach((targetDetail) => {
+    targetDetail.addEventListener('click', () => {
+      detailsElements.forEach((detail) => {
+        if (detail !== targetDetail) {
+          detail.removeAttribute('open');
+        }
+      });
+    });
+  });
 
   cards.forEach(card => {
     card.addEventListener('click', function() {
-      // Gestion visuelle de la carte active
+      // Retirer la classe active de tous les liens
       cards.forEach(c => c.classList.remove('active'));
+      // Ajouter la classe active au lien cliqué
       this.classList.add('active');
       
-      // Affichage de l'iframe
+      // Basculer l'affichage (cacher le texte d'attente, montrer l'iframe)
       placeholder.style.display = 'none';
       frame.style.display = 'block';
 
-      // Scroll léger et fluide calé sur le haut de la zone d'exercice sur petit écran
-      if(window.innerWidth <= 850) {
+      // Scroll fluide sur mobile
+      if(window.innerWidth <= 900) {
         setTimeout(() => {
-          frame.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          frame.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
       }
     });
