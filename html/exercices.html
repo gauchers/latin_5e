@@ -38,81 +38,10 @@
   h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2rem, 4vw, 2.8rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
   p.lede{font-size:1rem; color:var(--ink-soft); max-width:45rem; line-height:1.5; margin:0;}
 
-  /* ---- Structure en 2 colonnes ---- */
+  /* ---- Nouvelle structure en 2 colonnes (Ergonomique) ---- */
   .main-layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 1.5rem;
-    align-items: start;
-  }
-
-  /* ---- Menu d'exercices déroulant à gauche ---- */
-  .sidebar-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-  
-  /* Styles des accordéons */
-  .category {
-    background: var(--parch);
-    border-radius: var(--radius);
-    box-shadow: 0 4px 10px rgba(43,27,18,0.05);
-    overflow: hidden;
-  }
-  
-  .category summary {
-    padding: 1rem 1.2rem;
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--umber);
-    cursor: pointer;
-    background: var(--parch-dark);
-    list-style:<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Palestra — Exercices en ligne</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght=500;600;700&family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
-    --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
-    --umber:#2B1B12; --umber-light:#3E2A1C; --ink:#3A2A1F; --ink-soft:#7A6A56;
-    --radius:12px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--cream); position:relative; overflow-x:hidden;}
-  a{color:inherit;}
-  :focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px;}
-  button{font-family:var(--sans); cursor:pointer;}
-
-  .blob{position:absolute; border-radius:50%; z-index:0; pointer-events:none;}
-  
-  /* Élargissement MAXIMAL de la page pour les exercices */
-  .page{position:relative; z-index:1; max-width:1500px; width: 96%; margin:0 auto; padding:0 0 4rem;}
-
-  .topbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:1.6rem 0 1rem;}
-  .back{display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.88rem; text-decoration:none; color:var(--ink-soft);}
-  .back svg{width:15px; height:15px; stroke:var(--ink-soft); fill:none;}
-  .back:hover{color:var(--brick);}
-  .tabs{display:flex; gap:0.4rem; background:var(--parch); padding:0.3rem; border-radius:999px;}
-  .tab{padding:0.45rem 1rem; border-radius:999px; text-decoration:none; font-size:0.82rem; font-weight:600; color:var(--ink-soft);}
-  .tab.active{background:var(--brick); color:var(--cream);}
-  .tab:not(.active):hover{color:var(--brick);}
-
-  header.hero{padding:1rem 0 2rem;}
-  .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.26em; color:var(--brick); text-transform:uppercase;}
-  h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2rem, 4vw, 2.8rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
-  p.lede{font-size:1rem; color:var(--ink-soft); max-width:45rem; line-height:1.5; margin:0;}
-
-  /* ---- Structure en 2 colonnes ---- */
-  .main-layout {
-    display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 260px 1fr; /* Menu plus fin pour maximiser l'iframe */
     gap: 1.5rem;
     align-items: start;
   }
@@ -148,7 +77,7 @@
   }
   
   .category summary:hover { background: #dcc8a4; }
-  .category summary::-webkit-details-marker { display: none; }
+  .category summary::-webkit-details-marker { display: none; } /* Cache la flèche native sur Safari */
   
   .category summary::after {
     content: '▼';
@@ -168,7 +97,7 @@
     background: var(--parch);
   }
 
-  /* Liens d'exercices */
+  /* Liens / Boutons d'exercices repensés */
   .challenge {
     background: var(--cream);
     border: 1px solid rgba(156, 43, 31, 0.1);
@@ -196,7 +125,7 @@
   .challenge.active .ch-title { color: var(--brick); font-weight: 700; }
   .ch-desc { font-size: 0.75rem; color: var(--ink-soft); margin: 0; line-height: 1.3; }
 
-  /* ---- Conteneur d'exercice à droite ---- */
+  /* ---- Conteneur d'exercice MAXIMISÉ à droite ---- */
   .quiz-panel {
     background: #FFFFFF; 
     border-radius: var(--radius); 
@@ -209,11 +138,14 @@
   
   #quiz-frame {
     width: 100%;
-    min-height: 75vh;
+    min-height: 75vh; /* Prend 75% de la hauteur de l'écran pour un confort maximal */
     height: 100%;
     border: none;
     display: none;
     background: transparent;
+    zoom: 0.8;
+    -moz-transform: scale(0.8);
+    -moz-transform-origin: top left;
   }
   
   .placeholder-text {
@@ -230,7 +162,7 @@
     justify-content: center;
   }
 
-  /* Adaptabilité mobile */
+  /* ---- Adaptabilité mobile ---- */
   @media (max-width: 900px) {
     .main-layout { grid-template-columns: 1fr; }
     .quiz-panel, #quiz-frame, .placeholder-text { min-height: 60vh; }
@@ -257,14 +189,16 @@
     <header class="hero">
       <div class="eyebrow">La Palestra</div>
       <h1 class="title">Exercices en ligne</h1>
-      <p class="lede">Sélectionnez une catégorie dans le menu pour dérouler les exercices. Les pages d'exercices s'afficheront automatiquement avec un zoom adapté à 80% pour un confort de lecture idéal.</p>
+      <p class="lede">Sélectionnez une catégorie dans le menu pour dérouler les exercices. La zone de droite s'adaptera pour vous offrir un espace de travail optimal.</p>
     </header>
 
     <div class="main-layout">
       
+      <!-- MENU DÉROULANT (ACCORDÉONS) -->
       <nav class="sidebar-menu">
         
-        <details class="category" open>
+        <!-- Catégorie : Civilisation -->
+        <details class="category" open> <!-- 'open' permet qu'il soit ouvert par défaut -->
           <summary>Civilisation</summary>
           <div class="category-content">
             <a href="defis/histoire.html" class="challenge" target="quiz-target">
@@ -278,6 +212,7 @@
           </div>
         </details>
 
+        <!-- Catégorie : Déclinaison -->
         <details class="category">
           <summary>Déclinaison</summary>
           <div class="category-content">
@@ -288,6 +223,7 @@
           </div>
         </details>
 
+        <!-- Catégorie : Textes -->
         <details class="category">
           <summary>Textes</summary>
           <div class="category-content">
@@ -298,6 +234,7 @@
           </div>
         </details>
 
+        <!-- Catégorie : Français -->
         <details class="category">
           <summary>Français</summary>
           <div class="category-content">
@@ -314,6 +251,7 @@
 
       </nav>
 
+      <!-- ZONE D'EXERCICE MAXIMISÉE -->
       <section class="quiz-panel">
         <div id="placeholder" class="placeholder-text">
           Sélectionne une épreuve dans le menu déroulant à gauche pour commencer...
@@ -330,7 +268,7 @@
   const placeholder = document.getElementById('placeholder');
   const detailsElements = document.querySelectorAll('.category');
 
-  // Comportement accordéon (ferme les autres menus à l'ouverture d'un nouveau)
+  // Comportement "Accordéon strict" optionnel (ferme les autres menus quand on en ouvre un)
   detailsElements.forEach((targetDetail) => {
     targetDetail.addEventListener('click', () => {
       detailsElements.forEach((detail) => {
@@ -341,33 +279,24 @@
     });
   });
 
-  // Événement au clic sur un exercice
   cards.forEach(card => {
     card.addEventListener('click', function() {
+      // Retirer la classe active de tous les liens
       cards.forEach(c => c.classList.remove('active'));
+      // Ajouter la classe active au lien cliqué
       this.classList.add('active');
       
+      // Basculer l'affichage (cacher le texte d'attente, montrer l'iframe)
       placeholder.style.display = 'none';
       frame.style.display = 'block';
 
+      // Scroll fluide sur mobile
       if(window.innerWidth <= 900) {
         setTimeout(() => {
           frame.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
       }
     });
-  });
-
-  /* OPTION 3 : Force le zoom à 80% dans la page enfant dès qu'elle est chargée */
-  frame.addEventListener('load', function() {
-    try {
-      const iframeBody = frame.contentWindow.document.body;
-      if (iframeBody) {
-        iframeBody.style.zoom = "80%";
-      }
-    } catch (e) {
-      console.warn("Le zoom automatique à 80% n'a pas pu être appliqué car les fichiers ne partagent pas le même domaine (sécurité Cross-Origin).");
-    }
   });
 </script>
 
