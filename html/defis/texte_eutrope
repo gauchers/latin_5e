@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root{
+    --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+    --umber:#2B1B12; --ink:#3A2A1F; --ink-soft:#7A6A56; --good:#3F7A52; --bad:#B23A2E;
+    --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+  }
+  body { margin:0; font-family:var(--sans); color:var(--ink); background:transparent; }
+
+  .quiz-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; gap:1rem;}
+  .quiz-title { font-family:var(--serif); font-weight:700; font-size:1.5rem; color:var(--brick-dark); margin:0; }
+  .quiz-sub { font-size:0.85rem; color:var(--ink-soft); margin:0.2rem 0 0; }
+  #score-pill { display:inline-flex; align-items:center; background:var(--umber); color:var(--cream); padding:0.5rem 1rem; border-radius:999px; font-weight:700; font-size:0.9rem; }
+
+  .instruction-box { background:var(--parch); border:1px solid var(--parch-dark); padding:1rem; border-radius:10px; margin-bottom:1.5rem; text-align:center; font-weight:700; font-size:1.1rem; }
+  #target-word { color:var(--brick); font-size:1.2rem; text-transform: uppercase; letter-spacing: 0.5px;}
+
+  .text-container { display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+  @media (max-width: 768px) { .text-container { grid-template-columns: 1fr; } }
+
+  .text-block { background:var(--cream); border-radius:12px; padding:1.4rem; line-height:2.1; font-size:1rem; border:1px solid var(--parch-dark); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+  .text-block h3 { font-family:var(--serif); color:var(--brick-dark); margin-top:0; margin-bottom:0.8rem; font-size:1.25rem; border-bottom: 1px solid var(--parch-dark); padding-bottom: 0.4rem;}
+
+  .text-block.latin p { font-family: var(--serif); font-size: 1.2rem; color: var(--ink); }
+  .word-clickable { display: inline-block; cursor: pointer; padding: 0 2px; border-radius: 4px; transition: all 0.2s ease; font-weight: 500;}
+  .word-clickable:hover:not(.discovered) { background-color: var(--parch); color: var(--brick); }
+
+  .highlight { color: var(--brick); font-weight: 700; border-bottom: 2px dashed var(--gold); padding-bottom: 1px; }
+
+  .word-clickable.discovered { background-color: var(--good); color: white; cursor: default; font-weight: 700; }
+  .word-clickable.wrong-flash { background-color: var(--bad); color: white; }
+
+  .quiz-actions { display:flex; justify-content:center; margin-top:1.5rem; }
+  .btn { border:none; border-radius:10px; padding:0.75rem 1.4rem; font-weight:700; font-size:0.9rem; cursor:pointer; }
+  .btn.primary { background:var(--brick); color:var(--cream); }
+  .btn.primary:hover { background:var(--brick-dark); }
+</style>
+</head>
+<body>
+
+  <div class="quiz-head">
+    <div>
+      <p class="quiz-title">Chasse aux mots transparents</p>
+      <p class="quiz-sub">Regarde les mots mis en valeur dans la traduction française, puis retrouve leur équivalent en cliquant directement dans le texte latin.</p>
+    </div>
+    <div id="score-pill">Score : <span id="score-value">0/0</span></div>
+  </div>
+
+  <div class="instruction-box" id="info-box">
+    Trouve le mot latin qui signifie : <span id="target-word">...</span>
+  </div>
+
+  <div class="text-container">
+    <div class="text-block latin">
+      <h3>Texte latin (Eutrope)</h3>
+      <p>
+        <span class="word-clickable" data-match="romain">Romanum</span>
+        <span class="word-clickable" data-match="empire">imperium</span>, quo neque ab exordio ullum fere minus, neque incrementis toto orbe amplius <span class="word-clickable" data-match="humaine">humana</span> potest
+        <span class="word-clickable" data-match="mémoire">memoria</span> recordari, a <span class="word-clickable" data-match="romulus">Romulo</span> exordium habet; qui <span class="word-clickable" data-match="vestale">vestalis</span> <span class="word-clickable" data-match="vierge">virginis</span> <span class="word-clickable" data-match="fils">filius</span> et (quantum putatus est) <span class="word-clickable" data-match="mars">Martis</span>, cum <span class="word-clickable" data-match="remus">Remo</span> <span class="word-clickable" data-match="frere">fratre</span> uno partu editus est. Is, quum inter <span class="word-clickable" data-match="bergers">pastores</span> latrocinaretur, octodecim annos natus, urbem exiguam in <span class="word-clickable" data-match="palatin">Palatino</span> <span class="word-clickable" data-match="mont">monte</span> constituit, undecimo <span class="word-clickable" data-match="calendes">kalendas</span> <span class="word-clickable" data-match="mai">maii</span>, <span class="word-clickable" data-match="olympiade">Olympiadis</span> sextae anno tertio, post <span class="word-clickable" data-match="troie">Trojae</span> excidium, ut qui plurimum minimumque tradunt, trecentesimo nonagesimo quarto. Condita civitate, quam ex nomine suo <span class="word-clickable" data-match="rome">Romam</span> vocavit, haec fere egit. <span class="word-clickable" data-match="multitude">Multitudinem</span> finitimorum in civitatem recepit; centum ex <span class="word-clickable" data-match="anciens">senioribus</span> elegit, quorum <span class="word-clickable" data-match="conseil">consilio</span> omnia ageret : quos <span class="word-clickable" data-match="senateurs">senatores</span> nominavit propter senectutem.
+      </p>
+    </div>
+
+    <div class="text-block">
+      <h3>Traduction française d'aide</h3>
+      <p>
+        L' <span class="highlight">empire</span> <span class="highlight">romain</span>, le plus petit à ses débuts et le plus vaste dans ses développements qu'aucune <span class="highlight">mémoire</span> <span class="highlight">humaine</span> puisse se rappeler dans le monde entier, tire son origine de <span class="highlight">Romulus</span>. <span class="highlight">Fils</span> d'une <span class="highlight">vierge</span> <span class="highlight">vestale</span> et (pour autant qu'on l'ait cru) de <span class="highlight">Mars</span>, il naquit d'une même portée avec son <span class="highlight">frère</span> <span class="highlight">Rémus</span>. Alors qu'il vivait de brigandage parmi les <span class="highlight">bergers</span>, à l'âge de dix-huit ans, il fonda une petite ville sur le <span class="highlight">mont</span> <span class="highlight">Palatin</span>, le onzième jour avant les <span class="highlight">calendes</span> de <span class="highlight">mai</span>, la troisième année de la sixième <span class="highlight">Olympiade</span>, trois cent quatre-vingt-quatorze ans après la ruine de <span class="highlight">Troie</span>, selon les auteurs qui rapportent le laps de temps le plus long ou le plus court. Une fois la cité fondée, qu'il appela <span class="highlight">Rome</span> d'après son propre nom, voici l'essentiel de ce qu'il fit. Il accueillit dans la cité une <span class="highlight">multitude</span> de voisins ; il choisit cent parmi les <span class="highlight">anciens</span> pour agir en tout d'après leur <span class="highlight">conseil</span>, et il les nomma <span class="highlight">sénateurs</span> en raison de leur vieillesse.
+      </p>
+    </div>
+  </div>
+
+  <div class="quiz-actions">
+    <button class="btn primary" id="retry-btn" style="display:none;" onclick="resetGame()">Recommencer l'exercice</button>
+  </div>
+
+<script>
+  const targets = ["romain", "empire", "humaine", "mémoire", "romulus", "vestale", "vierge", "fils", "mars", "remus", "frere", "bergers", "palatin", "mont", "calendes", "mai", "olympiade", "troie", "rome", "multitude", "anciens", "conseil", "senateurs"];
+
+  let remainingTargets = [];
+  let currentTarget = "";
+  let score = 0;
+
+  const targetWordSpan = document.getElementById("target-word");
+  const scoreValue = document.getElementById("score-value");
+  const infoBox = document.getElementById("info-box");
+  const retryBtn = document.getElementById("retry-btn");
+
+  function initGame() {
+    score = 0;
+    scoreValue.textContent = "0 / " + targets.length;
+    retryBtn.style.display = "none";
+    infoBox.style.background = "var(--parch)";
+
+    document.querySelectorAll(".word-clickable").forEach(el => {
+      el.className = "word-clickable";
+    });
+
+    remainingTargets = [...targets].sort(() => Math.random() - 0.5);
+    nextTurn();
+  }
+
+  function nextTurn() {
+    if (remainingTargets.length === 0) {
+      targetWordSpan.textContent = "Bravo ! Félicitations !";
+      infoBox.style.background = "rgba(63, 122, 82, 0.2)";
+      retryBtn.style.display = "inline-block";
+      return;
+    }
+
+    currentTarget = remainingTargets.shift();
+    targetWordSpan.textContent = `"${currentTarget}"`;
+  }
+
+  document.querySelectorAll(".word-clickable").forEach(wordEl => {
+    wordEl.addEventListener("click", function() {
+      if (this.classList.contains("discovered")) return;
+
+      if (this.getAttribute("data-match") === currentTarget) {
+        this.classList.add("discovered");
+        score++;
+        scoreValue.textContent = `${score} / ${targets.length}`;
+        nextTurn();
+      } else {
+        const element = this;
+        element.classList.add("wrong-flash");
+        setTimeout(() => element.classList.remove("wrong-flash"), 400);
+      }
+    });
+  });
+
+  function resetGame() {
+    initGame();
+  }
+
+  initGame();
+</script>
+</body>
+</html>
