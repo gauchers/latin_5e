@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards - Français vers Latin (5ème)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brick: #9C2B1F;
+            --brick-dark: #6E1F16;
+            --gold: #C9A227;
+            --gold-light: #E4C767;
+            --cream: #FDF6EC;
+            --parch: #F1E4D0;
+            --parch-dark: #E4D2B4;
+            --umber: #2B1B12;
+            --umber-light: #3E2A1C;
+            --ink: #3A2A1F;
+            --ink-soft: #7A6A56;
+            --radius: 16px;
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'Inter', system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--sans);
+            color: var(--ink);
+            background: var(--cream);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 650px;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .eyebrow {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.26em;
+            color: var(--brick);
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-family: var(--serif);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin: 0.4rem 0;
+            color: var(--umber);
+        }
+
+        /* Message d'erreur ou chargement */
+        #status {
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-align: center;
+            background: var(--parch);
+            border: 1px solid var(--parch-dark);
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+        #status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        /* Zone de progression */
+        .progress-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        .progress-bar-bg {
+            flex-grow: 1;
+            height: 8px;
+            background: var(--parch-dark);
+            border-radius: 99px;
+            margin-left: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--brick);
+            transition: width 0.3s ease;
+        }
+
+        /* --- FLASHCARD 3D FLIP EFFECT --- */
+        .card-container {
+            width: 100%;
+            height: 350px;
+            perspective: 1000px;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(43,27,18,0.1);
+            border-radius: var(--radius);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--parch-dark);
+        }
+
+        /* Recto (Français) */
+        .card-front {
+            background: var(--parch);
+            color: var(--umber);
+        }
+
+        /* Verso (Latin) */
+        .card-back {
+            background: var(--cream);
+            transform: rotateY(180deg);
+            border-color: var(--gold);
+        }
+
+        .card-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            background: rgba(43, 27, 18, 0.05);
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+        }
+
+        .card-back .card-tag {
+            color: var(--gold);
+            background: rgba(201, 162, 39, 0.1);
+        }
+
+        .card-main-word {
+            font-family: var(--serif);
+            font-weight: 700;
+            font-size: 2.4rem;
+            color: var(--umber);
+            text-align: center;
+        }
+
+        .card-back .card-main-word {
+            color: var(--brick);
+            font-size: 2.8rem;
+        }
+
+        .card-hint {
+            font-size: 0.8rem;
+            color: var(--ink-soft);
+            font-style: italic;
+        }
+
+        .derivatives {
+            font-size: 0.95rem;
+            color: var(--ink-soft);
+            font-style: italic;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        /* Boutons d'action */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 0.9rem 1.6rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-again {
+            background: var(--parch-dark);
+            color: var(--umber);
+        }
+
+        .btn-again:hover {
+            background: #e4ccb4;
+        }
+
+        .btn-success {
+            background: var(--brick);
+            color: var(--cream);
+            flex-grow: 1;
+        }
+
+        .btn-success:hover {
+            background: var(--brick-dark);
+        }
+
+        /* Écran de fin */
+        .end-screen {
+            display: none;
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--parch);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(43,27,18,0.06);
+            width: 100%;
+        }
+
+        .end-screen h2 {
+            font-family: var(--serif);
+            font-size: 2.2rem;
+            color: var(--brick);
+            margin-bottom: 1rem;
+        }
+
+        .end-stats {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Cache les éléments interactifs pendant le chargement */
+        .interactive-area {
+            display: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <header>
+        <div class="eyebrow">Exercice de mémorisation inverse</div>
+        <h1>Du Français au Latin</h1>
+    </header>
+
+    <div id="status">Chargement du vocabulaire...</div>
+
+    <div class="interactive-area" id="interactive-area">
+        <div class="progress-container">
+            <span id="progress-text">Card 1 / 10</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="card-container" onclick="flipCard()">
+            <div class="card" id="flashcard">
+                <div class="card-face card-front">
+                    <span class="card-tag" id="recto-tag">Nom / D1</span>
+                    <div class="card-main-word" id="recto-meaning">rose</div>
+                    <span class="card-hint">Cliquez pour révéler le mot latin</span>
+                </div>
+                <div class="card-face card-back">
+                    <span class="card-tag" id="verso-tag">Mot Latin</span>
+                    <div>
+                        <div class="card-main-word" id="verso-latin">rosa, ae, f.</div>
+                        <div class="derivatives" id="verso-derivatives">Dérivés : rosier, roseraie</div>
+                    </div>
+                    <span class="card-hint">Cliquez pour revenir au sens français</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-again" onclick="handleCardAction(false)">
+                ❌ À revoir
+            </button>
+            <button class="btn btn-success" onclick="handleCardAction(true)">
+                ✅ Maîtrisé !
+            </button>
+        </div>
+    </div>
+
+    <div class="end-screen" id="end-screen">
+        <h2>Session terminée ! 🎉</h2>
+        <div class="end-stats">
+            Vous avez parcouru cette session d'évaluation.<br>
+            <strong id="final-score">10/10</strong> traductions latines maîtrisées du premier coup.
+        </div>
+        <button class="btn btn-success" onclick="restartSession()">Recommencer une série</button>
+    </div>
+</div>
+
+<script>
+    let rawLexicon = [];   // Contient tous les mots chargés
+    let activeDeck = [];   // Cartes de la session en cours
+    let currentIndex = 0;
+    let masteredCount = 0;
+
+    // Parseur CSV supportant les guillemets et séparateurs virgules (,)
+    function parseCSV(text) {
+        const lines = [];
+        let row = [""];
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const nextChar = text[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                    row[row.length - 1] += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                row.push(""); 
+            } else if ((char === '\r' || char === '\n') && !inQuotes) {
+                if (char === '\r' && nextChar ===
