@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexique Latin 5ème - CSV Externe</title>
+    <title>Lexique Latin 5ème</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root{
@@ -200,7 +200,7 @@
 
 <div class="page">
     <div class="topbar">
-        <a href="../index.html" class="back">
+        <a href="#" class="back">
             <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Retour
         </a>
@@ -220,10 +220,10 @@
     <div class="filter-section">
         <div class="filter-control">
             <label for="search">Rechercher un mot, un sens, un dérivé...</label>
-            <input type="text" id="search" placeholder="Ex: sum, ami, écrire..." disabled>
+            <input type="text" id="search" placeholder="Ex: rosa, rose, pays..." disabled>
         </div>
         <div class="filter-control">
-            <label for="filter-nature">Nature, classe, genre</label>
+            <label for="filter-nature">Nature</label>
             <select id="filter-nature" disabled>
                 <option value="">Toutes les catégories</option>
             </select>
@@ -234,6 +234,10 @@
                 <option value="">Toutes les déclinaisons</option>
                 <option value="D1">1ère déclinaison (D1)</option>
                 <option value="D2">2ème déclinaison (D2)</option>
+                <option value="D3">3ème déclinaison (D3)</option>
+                <option value="D4">4ème déclinaison (D4)</option>
+                <option value="D5">5ème déclinaison (D5)</option>
+                <option value="—">Autre / Indéclinable (—)</option>
             </select>
         </div>
     </div>
@@ -265,7 +269,7 @@
     const countBadge = document.getElementById('count');
     const statusDiv = document.getElementById('status');
 
-    // Parseur CSV adapté aux fichiers séparés par un POINT-VIRGULE (;)
+    // Parseur CSV adapté à votre fichier LA_5E_voc.csv
     function parseCSV(text) {
         const lines = [];
         let row = [""];
@@ -277,12 +281,12 @@
 
             if (char === '"') {
                 if (inQuotes && nextChar === '"') {
-                    row[row.length - 1] += '"'; // Échappement des doubles guillemets
+                    row[row.length - 1] += '"'; // Échappement
                     i++;
                 } else {
-                    inQuotes = !inQuotes; // Bascule de l'état "dans les guillemets"
+                    inQuotes = !inQuotes; // Bascule de l'état
                 }
-            } else if (char === ';' && !inQuotes) { // Séparateur POINT-VIRGULE
+            } else if (char === ',' && !inQuotes) { // Séparateur VIRGULE
                 row.push(""); 
             } else if ((char === '\r' || char === '\n') && !inQuotes) {
                 if (char === '\r' && nextChar === '\n') {
@@ -303,7 +307,6 @@
     // Charger le CSV externe via Fetch
     async function loadExternalCSV() {
         try {
-            // Assurez-vous que votre fichier est bien nommé 'LA_5E_voc.csv' dans le dossier parent 'csv'
             const response = await fetch('../csv/LA_5E_voc.csv');
             if (!response.ok) {
                 throw new Error(`Erreur HTTP : ${response.status} ${response.statusText}`);
@@ -318,50 +321,33 @@
             // Récupérer les en-têtes (1ère ligne)
             const headers = parsedData[0].map(h => h.trim().toLowerCase());
             
-            // Trouver l'index de chaque colonne requise
+            // Trouver l'index des colonnes réelles de votre CSV
             const idxMot = headers.indexOf('mot');
-            const idxNature = headers.indexOf('nature,classe,genre');
-            const idxSens = headers.indexOf('sens');
-            const idxDerives = headers.indexOf('dérivés français');
-            const idxNiveau = headers.indexOf('niveau');
+            const idxNature = headers.indexOf('nature');
+            const idxDeclinaison = headers.indexOf('déclinaison');
+            const idxSens = headers.indexOf('traduction en français');
+            const idxDerives = headers.indexOf('mot français dérivé');
 
             if (idxMot === -1 || idxNature === -1 || idxSens === -1 || idxDerives === -1) {
-                throw new Error("Certaines colonnes obligatoires ('mot', 'nature,classe,genre', 'sens' ou 'dérivés français') manquent.");
+                throw new Error("Certaines colonnes obligatoires ('Mot', 'Nature', 'Traduction en français' ou 'Mot français dérivé') manquent dans le CSV.");
             }
 
-            // Construire le dictionnaire en mémoire en filtrant sur le niveau "5ième"
+            // Construire le dictionnaire
             lexicon = [];
             for (let i = 1; i < parsedData.length; i++) {
                 const row = parsedData[i];
                 if (row.length < headers.length) continue; 
 
-                const niveauValue = idxNiveau !== -1 ? row[idxNiveau].trim() : "5ième";
-                
-                // On n'importe que les éléments de 5ième
-                if (idxNiveau !== -1 && niveauValue !== "5ième") {
-                    continue;
-                }
-
-                const natureStr = row[idxNature].trim();
-                let declensionExtracted = "";
-
-                // Extraction de la déclinaison depuis le champ textuel de la nature
-                if (natureStr.toLowerCase().includes("1ère décl") || natureStr.toLowerCase().includes("d1")) {
-                    declensionExtracted = "D1";
-                } else if (natureStr.toLowerCase().includes("2ième décl") || natureStr.toLowerCase().includes("d2") || natureStr.toLowerCase().includes("2ème décl")) {
-                    declensionExtracted = "D2";
-                }
-
                 lexicon.push({
                     'mot': row[idxMot].trim(),
-                    'nature,classe,genre': natureStr,
+                    'nature': row[idxNature].trim(),
+                    'declinaison': idxDeclinaison !== -1 ? row[idxDeclinaison].trim() : "",
                     'sens': row[idxSens].trim(),
-                    'dérivés français': row[idxDerives].trim(),
-                    'déclinaison': declensionExtracted
+                    'derives': row[idxDerives].trim()
                 });
             }
 
-            // Activer les contrôles de l'interface graphique
+            // Activer l'interface graphique
             statusDiv.style.display = 'none';
             searchInput.removeAttribute('disabled');
             natureSelect.removeAttribute('disabled');
@@ -377,12 +363,12 @@
         }
     }
 
-    // Extraire et trier les natures uniques
+    // Remplir la liste des Natures
     function populateNatures() {
         const natures = new Set();
         lexicon.forEach(item => {
-            if(item['nature,classe,genre']) {
-                natures.add(item['nature,classe,genre'].trim());
+            if(item['nature']) {
+                natures.add(item['nature']);
             }
         });
         
@@ -390,12 +376,12 @@
         sortedNatures.forEach(nat => {
             const opt = document.createElement('option');
             opt.value = nat;
-            opt.textContent = nat;
+            opt.textContent = nat.charAt(0).toUpperCase() + nat.slice(1);
             natureSelect.appendChild(opt);
         });
     }
 
-    // Afficher les lignes filtrées
+    // Mettre à jour l'affichage avec les filtres appliqués
     function updateList() {
         const searchVal = searchInput.value.toLowerCase().trim();
         const selectedNature = natureSelect.value;
@@ -405,17 +391,17 @@
         let visibleCount = 0;
 
         lexicon.forEach((item) => {
-            // Filtre par catégorie/nature
-            const matchNature = !selectedNature || item['nature,classe,genre'] === selectedNature;
+            // Filtre par Nature
+            const matchNature = !selectedNature || item['nature'] === selectedNature;
             
-            // Filtre par déclinaison (D1 ou D2 extrait du texte)
-            const matchDeclension = !selectedDeclension || item['déclinaison'] === selectedDeclension;
+            // Filtre par Déclinaison
+            const matchDeclension = !selectedDeclension || item['declinaison'] === selectedDeclension;
             
-            // Filtre par recherche textuelle globale
+            // Recherche textuelle
             const matchSearch = !searchVal || 
                                 item['mot'].toLowerCase().includes(searchVal) ||
                                 item['sens'].toLowerCase().includes(searchVal) ||
-                                item['dérivés français'].toLowerCase().includes(searchVal);
+                                item['derives'].toLowerCase().includes(searchVal);
 
             if (matchNature && matchDeclension && matchSearch) {
                 visibleCount++;
@@ -426,7 +412,7 @@
                     <div class="anum">${visibleCount}</div>
                     <div class="word-latin">${item['mot']}</div>
                     <div class="word-meaning">${item['sens'] || '<i>non renseigné</i>'}</div>
-                    <div class="word-derivatives">${item['dérivés français'] || '-'}</div>
+                    <div class="word-derivatives">${item['derives'] || '-'}</div>
                 `;
                 archiveList.appendChild(row);
             }
@@ -439,7 +425,6 @@
     natureSelect.addEventListener('change', updateList);
     declensionSelect.addEventListener('change', updateList);
 
-    // Initialisation en chargeant le fichier externe
     window.addEventListener('DOMContentLoaded', loadExternalCSV);
 </script>
 
