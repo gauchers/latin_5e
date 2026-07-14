@@ -200,7 +200,7 @@
 
 <div class="page">
     <div class="topbar">
-        <a href="#" class="back">
+        <a href="../index.html" class="back">
             <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Retour
         </a>
@@ -217,7 +217,6 @@
 
     <div id="status" class="status-message loading">Chargement du dictionnaire depuis ../csv/LA_5E_voc.csv...</div>
 
-    <!-- Filtres -->
     <div class="filter-section">
         <div class="filter-control">
             <label for="search">Rechercher un mot, un sens, un dérivé...</label>
@@ -233,13 +232,12 @@
             <label for="filter-declension">Déclinaison</label>
             <select id="filter-declension" disabled>
                 <option value="">Toutes les déclinaisons</option>
-                <option value="1">1ère déclinaison (D1)</option>
-                <option value="2">2ème déclinaison (D2)</option>
+                <option value="D1">1ère déclinaison (D1)</option>
+                <option value="D2">2ème déclinaison (D2)</option>
             </select>
         </div>
     </div>
 
-    <!-- Tableau sous forme d'archive -->
     <div class="archive">
         <div class="arow header-row">
             <div class="anum">N°</div>
@@ -248,8 +246,7 @@
             <div>Dérivés français</div>
         </div>
         <div id="archive-list">
-            <!-- Injecté par JS -->
-        </div>
+            </div>
     </div>
 
     <div class="note">
@@ -268,7 +265,7 @@
     const countBadge = document.getElementById('count');
     const statusDiv = document.getElementById('status');
 
-    // Parseur CSV basique prenant en compte les valeurs éventuellement entourées de guillemets doubles
+    // Parseur CSV adapté aux fichiers séparés par un POINT-VIRGULE (;)
     function parseCSV(text) {
         const lines = [];
         let row = [""];
@@ -285,14 +282,14 @@
                 } else {
                     inQuotes = !inQuotes; // Bascule de l'état "dans les guillemets"
                 }
-            } else if (char === ';' && !inQuotes) {
-                row.push(""); // Nouvelle cellule
+            } else if (char === ';' && !inQuotes) { // Séparateur POINT-VIRGULE
+                row.push(""); 
             } else if ((char === '\r' || char === '\n') && !inQuotes) {
                 if (char === '\r' && nextChar === '\n') {
                     i++;
                 }
                 lines.push(row);
-                row = [""]; // Nouvelle ligne
+                row = [""]; 
             } else {
                 row[row.length - 1] += char;
             }
@@ -306,6 +303,7 @@
     // Charger le CSV externe via Fetch
     async function loadExternalCSV() {
         try {
+            // Assurez-vous que votre fichier est bien nommé 'LA_5E_voc.csv' dans le dossier parent 'csv'
             const response = await fetch('../csv/LA_5E_voc.csv');
             if (!response.ok) {
                 throw new Error(`Erreur HTTP : ${response.status} ${response.statusText}`);
@@ -326,31 +324,40 @@
             const idxSens = headers.indexOf('sens');
             const idxDerives = headers.indexOf('dérivés français');
             const idxNiveau = headers.indexOf('niveau');
-            const idxDeclinaison = headers.indexOf('déclinaison');
 
             if (idxMot === -1 || idxNature === -1 || idxSens === -1 || idxDerives === -1) {
-                throw new Error("Certaines colonnes obligatoires ('mot', 'nature,classe,genre', 'sens' ou 'dérivés français') manquent dans le CSV.");
+                throw new Error("Certaines colonnes obligatoires ('mot', 'nature,classe,genre', 'sens' ou 'dérivés français') manquent.");
             }
 
-            // Construire le dictionnaire en mémoire en filtrant UNIQUEMENT sur le niveau "5ième"
+            // Construire le dictionnaire en mémoire en filtrant sur le niveau "5ième"
             lexicon = [];
             for (let i = 1; i < parsedData.length; i++) {
                 const row = parsedData[i];
-                if (row.length < headers.length) continue; // Ligne incomplète
+                if (row.length < headers.length) continue; 
 
                 const niveauValue = idxNiveau !== -1 ? row[idxNiveau].trim() : "5ième";
                 
-                // Si la colonne niveau existe et qu'elle ne correspond pas à 5ième, on ignore le mot.
+                // On n'importe que les éléments de 5ième
                 if (idxNiveau !== -1 && niveauValue !== "5ième") {
                     continue;
                 }
 
+                const natureStr = row[idxNature].trim();
+                let declensionExtracted = "";
+
+                // Extraction de la déclinaison depuis le champ textuel de la nature
+                if (natureStr.toLowerCase().includes("1ère décl") || natureStr.toLowerCase().includes("d1")) {
+                    declensionExtracted = "D1";
+                } else if (natureStr.toLowerCase().includes("2ième décl") || natureStr.toLowerCase().includes("d2") || natureStr.toLowerCase().includes("2ème décl")) {
+                    declensionExtracted = "D2";
+                }
+
                 lexicon.push({
                     'mot': row[idxMot].trim(),
-                    'nature,classe,genre': row[idxNature].trim(),
+                    'nature,classe,genre': natureStr,
                     'sens': row[idxSens].trim(),
                     'dérivés français': row[idxDerives].trim(),
-                    'déclinaison': idxDeclinaison !== -1 ? row[idxDeclinaison].trim() : ""
+                    'déclinaison': declensionExtracted
                 });
             }
 
@@ -401,7 +408,7 @@
             // Filtre par catégorie/nature
             const matchNature = !selectedNature || item['nature,classe,genre'] === selectedNature;
             
-            // Filtre par déclinaison (Vérifie si la colonne contient '1' ou '2')
+            // Filtre par déclinaison (D1 ou D2 extrait du texte)
             const matchDeclension = !selectedDeclension || item['déclinaison'] === selectedDeclension;
             
             // Filtre par recherche textuelle globale
