@@ -363,4 +363,161 @@
             } else if (char === ',' && !inQuotes) {
                 row.push(""); 
             } else if ((char === '\r' || char === '\n') && !inQuotes) {
-                if (char === '\r' && nextChar ===
+                if (char === '\r' && nextChar === '\n') {
+                    i++;
+                }
+                lines.push(row);
+                row = [""]; 
+            } else {
+                row[row.length - 1] += char;
+            }
+        }
+        if (row.length > 1 || row[0] !== "") {
+            lines.push(row);
+        }
+        return lines;
+    }
+
+    // Charger le CSV externe
+    async function loadVocab() {
+        try {
+            const response = await fetch('../csv/LA_5E_voc.csv');
+            if (!response.ok) {
+                throw new Error(`Fichier CSV introuvable (code ${response.status})`);
+            }
+            const csvText = await response.text();
+            const parsedData = parseCSV(csvText);
+
+            if (parsedData.length < 2) {
+                throw new Error("Le fichier CSV est vide.");
+            }
+
+            const headers = parsedData[0].map(h => h.trim().toLowerCase());
+            const idxMot = headers.indexOf('mot');
+            const idxNature = headers.indexOf('nature');
+            const idxDeclinaison = headers.indexOf('déclinaison');
+            const idxSens = headers.indexOf('traduction en français');
+            const idxDerives = headers.indexOf('mot français dérivé');
+
+            if (idxMot === -1 || idxNature === -1 || idxSens === -1) {
+                throw new Error("Structure de colonnes invalide.");
+            }
+
+            rawLexicon = [];
+            for (let i = 1; i < parsedData.length; i++) {
+                const row = parsedData[i];
+                if (row.length < headers.length) continue;
+
+                rawLexicon.push({
+                    mot: row[idxMot].trim(),
+                    nature: row[idxNature].trim(),
+                    declinaison: idxDeclinaison !== -1 ? row[idxDeclinaison].trim() : "",
+                    sens: row[idxSens].trim(),
+                    derives: idxDerives !== -1 ? row[idxDerives].trim() : ""
+                });
+            }
+
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('interactive-area').style.display = 'block';
+
+            startNewSession();
+
+        } catch (error) {
+            console.error(error);
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status-message error';
+            statusDiv.innerHTML = `Impossible de charger le fichier CSV (<code>../csv/LA_5E_voc.csv</code>).<br>Détail : ${error.message}`;
+        }
+    }
+
+    // Initialiser une session avec 10 mots aléatoires
+    function startNewSession() {
+        document.getElementById('end-screen').style.display = 'none';
+        document.getElementById('interactive-area').style.display = 'block';
+
+        const shuffled = [...rawLexicon].sort(() => 0.5 - Math.random());
+        activeDeck = shuffled.slice(0, 10);
+
+        currentIndex = 0;
+        masteredCount = 0;
+        showCard();
+    }
+
+    // Retourner la carte
+    function flipCard() {
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    // Afficher la carte courante
+    function showCard() {
+        const cardElement = document.getElementById('flashcard');
+        cardElement.classList.remove('flipped'); // Remet toujours le recto (français) au chargement
+
+        const currentWord = activeDeck[currentIndex];
+
+        // Nature du mot en cours
+        let typeInfo = currentWord.nature;
+        if(currentWord.declinaison && currentWord.declinaison !== '—') {
+            typeInfo += ` • ${currentWord.declinaison}`;
+        }
+
+        // Mettre à jour le Recto (Français)
+        document.getElementById('recto-tag').textContent = typeInfo;
+        document.getElementById('recto-meaning').textContent = currentWord.sens;
+
+        // Mettre à jour le Verso (Latin)
+        document.getElementById('verso-tag').textContent = `Mot Latin (${typeInfo})`;
+        document.getElementById('verso-latin').textContent = currentWord.mot;
+        const derivativesDiv = document.getElementById('verso-derivatives');
+        if(currentWord.derives) {
+            derivativesDiv.style.display = 'block';
+            derivativesDiv.innerHTML = `<strong>Dérivés français :</strong> ${currentWord.derives}`;
+        } else {
+            derivativesDiv.style.display = 'none';
+        }
+
+        // Mettre à jour la progression
+        document.getElementById('progress-text').textContent = `Mot ${currentIndex + 1} / ${activeDeck.length}`;
+        const progressPercentage = (currentIndex / activeDeck.length) * 100;
+        document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
+    }
+
+    // Gérer l'action de l'utilisateur (Maîtrisé / À revoir)
+    function handleCardAction(isMastered) {
+        if(isMastered) {
+            masteredCount++;
+        }
+
+        currentIndex++;
+
+        if (currentIndex < activeDeck.length) {
+            const cardElement = document.getElementById('flashcard');
+            const wasFlipped = cardElement.classList.contains('flipped');
+            
+            if(wasFlipped) {
+                cardElement.classList.remove('flipped');
+                setTimeout(showCard, 250); // Attend que le retournement se termine avant de charger le mot suivant
+            } else {
+                showCard();
+            }
+        } else {
+            showEndScreen();
+        }
+    }
+
+    // Afficher l'écran de fin
+    function showEndScreen() {
+        document.getElementById('interactive-area').style.display = 'none';
+        document.getElementById('end-screen').style.display = 'block';
+        document.getElementById('final-score').textContent = `${masteredCount} / ${activeDeck.length}`;
+    }
+
+    function restartSession() {
+        startNewSession();
+    }
+
+    window.addEventListener('DOMContentLoaded', loadVocab);
+</script>
+
+</body>
+</html>
