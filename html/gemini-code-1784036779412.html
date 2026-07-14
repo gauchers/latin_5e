@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexique Latin 5ème - CSV Externe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --brick:#9C2B1F; --brick-dark:#6E1F16; --gold:#C9A227; --gold-light:#E4C767;
+            --cream:#FDF6EC; --parch:#F1E4D0; --parch-dark:#E4D2B4;
+            --umber:#2B1B12; --umber-light:#3E2A1C; --ink:#3A2A1F; --ink-soft:#7A6A56;
+            --radius:16px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, sans-serif;
+        }
+        *{box-sizing:border-box;}
+        body{margin:0; font-family:var(--sans); color:var(--ink); background:var(--cream); position:relative; overflow-x:hidden;}
+        a{color:inherit;}
+        :focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px;}
+
+        .blob{position:absolute; border-radius:50%; z-index:0; pointer-events:none;}
+        .page{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 1.5rem 4rem;}
+
+        .topbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; padding:1.6rem 0 1rem;}
+        .back{display:inline-flex; align-items:center; gap:0.4rem; font-weight:600; font-size:0.88rem; text-decoration:none; color:var(--ink-soft);}
+        .back svg{width:15px; height:15px; stroke:var(--ink-soft); fill:none;}
+        .back:hover{color:var(--brick);}
+        .tabs{display:flex; gap:0.4rem; background:var(--parch); padding:0.3rem; border-radius:999px;}
+        .tab{padding:0.45rem 1rem; border-radius:999px; text-decoration:none; font-size:0.82rem; font-weight:600; color:var(--ink-soft); border:none; background:transparent; cursor:pointer;}
+        .tab.active{background:var(--brick); color:var(--cream);}
+        .tab:not(.active):hover{color:var(--brick);}
+
+        header.hero{padding:1.5rem 0 2rem;}
+        .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.26em; color:var(--brick); text-transform:uppercase;}
+        h1.title{font-family:var(--serif); font-weight:700; font-size:clamp(2.4rem, 5.5vw, 3.3rem); margin:0.3rem 0 0.5rem; color:var(--umber);}
+        p.lede{font-size:1rem; color:var(--ink-soft); max-width:38rem; line-height:1.55; margin:0;}
+
+        /* ---- messages d'état ---- */
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: none;
+        }
+        .status-message.loading {
+            display: block;
+            background: var(--parch);
+            color: var(--umber);
+            border: 1px solid var(--parch-dark);
+        }
+        .status-message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* ---- barre de filtres ---- */
+        .filter-section {
+            background: var(--parch);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(43,27,18,0.04);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .filter-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        .filter-control {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .filter-control label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+        }
+        .filter-control select, .filter-control input {
+            background: var(--cream);
+            border: 2px solid var(--parch-dark);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            font-family: var(--sans);
+            font-size: 0.95rem;
+            color: var(--ink);
+            outline: none;
+            width: 100%;
+        }
+        .filter-control select:focus, .filter-control input:focus {
+            border-color: var(--gold);
+        }
+
+        /* ---- archive list ---- */
+        .archive{
+            border-radius:var(--radius); 
+            overflow:hidden; 
+            box-shadow:0 12px 30px rgba(43,27,18,0.08);
+            background:var(--cream);
+        }
+        .arow{
+            display:grid; 
+            grid-template-columns: 4rem 1.5fr 3fr 3fr;
+            align-items: start; 
+            gap: 1.5rem; 
+            padding: 1.2rem 1.4rem;
+            border-bottom: 1px solid var(--parch-dark);
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        .arow:last-child{border-bottom:none;}
+        .arow:nth-child(even):not(.header-row){background: var(--parch);}
+        .arow.header-row{
+            background:var(--umber); 
+            color:var(--cream); 
+            font-size:0.75rem; 
+            font-weight:700; 
+            letter-spacing:0.08em; 
+            text-transform:uppercase; 
+            padding:1rem 1.4rem;
+            align-items: center;
+        }
+        .arow.header-row .anum{color:var(--gold-light);}
+        
+        .anum{
+            font-family:var(--serif); 
+            font-weight:700; 
+            font-size:1.2rem; 
+            color:var(--gold); 
+            text-align:center;
+            align-self: center;
+        }
+        .word-latin{
+            font-family:var(--serif); 
+            font-weight:700; 
+            font-size:1.25rem; 
+            color:var(--brick);
+            line-height: 1.2;
+        }
+        .word-meaning{
+            font-size:0.95rem; 
+            color:var(--ink); 
+            line-height:1.5;
+        }
+        .word-derivatives{
+            font-size:0.9rem; 
+            color:var(--ink-soft); 
+            font-style:italic;
+            line-height:1.5;
+        }
+
+        @media (max-width:768px){
+            .arow{
+                grid-template-columns: 1fr; 
+                row-gap: 0.6rem; 
+                padding: 1.5rem;
+            }
+            .arow.header-row{display:none;}
+            .anum { 
+                text-align: left; 
+                font-size: 0.85rem; 
+                background: var(--parch-dark); 
+                display: inline-block; 
+                padding: 0.2rem 0.6rem; 
+                border-radius: 4px; 
+                width: fit-content; 
+                align-self: start;
+            }
+            .word-latin { 
+                font-size: 1.35rem; 
+                margin-top: 0.2rem;
+            }
+        }
+
+        .note{
+            margin-top:1.6rem; font-size:0.85rem; color:var(--ink-soft);
+            display:flex; align-items:flex-start; gap:0.55rem;
+        }
+        .note svg{width:17px; height:17px; stroke:var(--gold); fill:none; flex-shrink:0; margin-top:0.1rem;}
+        
+        .counter-badge {
+            background-color: var(--brick);
+            color: var(--cream);
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="topbar">
+        <a href="#" class="back">
+            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Retour
+        </a>
+        <div class="tabs">
+            <button class="tab active">5ème uniquement</button>
+        </div>
+    </div>
+
+    <header class="hero">
+        <div class="eyebrow">Langues et cultures de l'Antiquité</div>
+        <h1 class="title">Lexique Latin <span id="count" class="counter-badge">0</span></h1>
+        <p class="lede">Retrouvez le vocabulaire latin étudié en classe de cinquième, ses définitions et ses nombreux dérivés dans la langue française.</p>
+    </header>
+
+    <div id="status" class="status-message loading">Chargement du dictionnaire depuis ../csv/LA_5E_voc.csv...</div>
+
+    <!-- Filtres -->
+    <div class="filter-section">
+        <div class="filter-control">
+            <label for="search">Rechercher un mot, un sens, un dérivé...</label>
+            <input type="text" id="search" placeholder="Ex: sum, ami, écrire..." disabled>
+        </div>
+        <div class="filter-control">
+            <label for="filter-nature">Nature, classe, genre</label>
+            <select id="filter-nature" disabled>
+                <option value="">Toutes les catégories</option>
+            </select>
+        </div>
+        <div class="filter-control">
+            <label for="filter-declension">Déclinaison</label>
+            <select id="filter-declension" disabled>
+                <option value="">Toutes les déclinaisons</option>
+                <option value="1">1ère déclinaison (D1)</option>
+                <option value="2">2ème déclinaison (D2)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Tableau sous forme d'archive -->
+    <div class="archive">
+        <div class="arow header-row">
+            <div class="anum">N°</div>
+            <div>Mot (Latin)</div>
+            <div>Sens & traduction</div>
+            <div>Dérivés français</div>
+        </div>
+        <div id="archive-list">
+            <!-- Injecté par JS -->
+        </div>
+    </div>
+
+    <div class="note">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>Ce lexique interactif est alimenté dynamiquement par le fichier externe <code>../csv/LA_5E_voc.csv</code>.</span>
+    </div>
+</div>
+
+<script>
+    let lexicon = [];
+
+    const searchInput = document.getElementById('search');
+    const natureSelect = document.getElementById('filter-nature');
+    const declensionSelect = document.getElementById('filter-declension');
+    const archiveList = document.getElementById('archive-list');
+    const countBadge = document.getElementById('count');
+    const statusDiv = document.getElementById('status');
+
+    // Parseur CSV basique prenant en compte les valeurs éventuellement entourées de guillemets doubles
+    function parseCSV(text) {
+        const lines = [];
+        let row = [""];
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const nextChar = text[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                    row[row.length - 1] += '"'; // Échappement des doubles guillemets
+                    i++;
+                } else {
+                    inQuotes = !inQuotes; // Bascule de l'état "dans les guillemets"
+                }
+            } else if (char === ';' && !inQuotes) {
+                row.push(""); // Nouvelle cellule
+            } else if ((char === '\r' || char === '\n') && !inQuotes) {
+                if (char === '\r' && nextChar === '\n') {
+                    i++;
+                }
+                lines.push(row);
+                row = [""]; // Nouvelle ligne
+            } else {
+                row[row.length - 1] += char;
+            }
+        }
+        if (row.length > 1 || row[0] !== "") {
+            lines.push(row);
+        }
+        return lines;
+    }
+
+    // Charger le CSV externe via Fetch
+    async function loadExternalCSV() {
+        try {
+            const response = await fetch('../csv/LA_5E_voc.csv');
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP : ${response.status} ${response.statusText}`);
+            }
+            const csvText = await response.text();
+            const parsedData = parseCSV(csvText);
+
+            if (parsedData.length < 2) {
+                throw new Error("Le fichier CSV est vide ou invalide.");
+            }
+
+            // Récupérer les en-têtes (1ère ligne)
+            const headers = parsedData[0].map(h => h.trim().toLowerCase());
+            
+            // Trouver l'index de chaque colonne requise
+            const idxMot = headers.indexOf('mot');
+            const idxNature = headers.indexOf('nature,classe,genre');
+            const idxSens = headers.indexOf('sens');
+            const idxDerives = headers.indexOf('dérivés français');
+            const idxNiveau = headers.indexOf('niveau');
+            const idxDeclinaison = headers.indexOf('déclinaison');
+
+            if (idxMot === -1 || idxNature === -1 || idxSens === -1 || idxDerives === -1) {
+                throw new Error("Certaines colonnes obligatoires ('mot', 'nature,classe,genre', 'sens' ou 'dérivés français') manquent dans le CSV.");
+            }
+
+            // Construire le dictionnaire en mémoire en filtrant UNIQUEMENT sur le niveau "5ième"
+            lexicon = [];
+            for (let i = 1; i < parsedData.length; i++) {
+                const row = parsedData[i];
+                if (row.length < headers.length) continue; // Ligne incomplète
+
+                const niveauValue = idxNiveau !== -1 ? row[idxNiveau].trim() : "5ième";
+                
+                // Si la colonne niveau existe et qu'elle ne correspond pas à 5ième, on ignore le mot.
+                if (idxNiveau !== -1 && niveauValue !== "5ième") {
+                    continue;
+                }
+
+                lexicon.push({
+                    'mot': row[idxMot].trim(),
+                    'nature,classe,genre': row[idxNature].trim(),
+                    'sens': row[idxSens].trim(),
+                    'dérivés français': row[idxDerives].trim(),
+                    'déclinaison': idxDeclinaison !== -1 ? row[idxDeclinaison].trim() : ""
+                });
+            }
+
+            // Activer les contrôles de l'interface graphique
+            statusDiv.style.display = 'none';
+            searchInput.removeAttribute('disabled');
+            natureSelect.removeAttribute('disabled');
+            declensionSelect.removeAttribute('disabled');
+
+            populateNatures();
+            updateList();
+
+        } catch (error) {
+            console.error(error);
+            statusDiv.className = 'status-message error';
+            statusDiv.innerHTML = `Impossible de charger le fichier CSV (<code>../csv/LA_5E_voc.csv</code>).<br>Détail de l'erreur : ${error.message}`;
+        }
+    }
+
+    // Extraire et trier les natures uniques
+    function populateNatures() {
+        const natures = new Set();
+        lexicon.forEach(item => {
+            if(item['nature,classe,genre']) {
+                natures.add(item['nature,classe,genre'].trim());
+            }
+        });
+        
+        const sortedNatures = Array.from(natures).sort();
+        sortedNatures.forEach(nat => {
+            const opt = document.createElement('option');
+            opt.value = nat;
+            opt.textContent = nat;
+            natureSelect.appendChild(opt);
+        });
+    }
+
+    // Afficher les lignes filtrées
+    function updateList() {
+        const searchVal = searchInput.value.toLowerCase().trim();
+        const selectedNature = natureSelect.value;
+        const selectedDeclension = declensionSelect.value;
+        
+        archiveList.innerHTML = '';
+        let visibleCount = 0;
+
+        lexicon.forEach((item) => {
+            // Filtre par catégorie/nature
+            const matchNature = !selectedNature || item['nature,classe,genre'] === selectedNature;
+            
+            // Filtre par déclinaison (Vérifie si la colonne contient '1' ou '2')
+            const matchDeclension = !selectedDeclension || item['déclinaison'] === selectedDeclension;
+            
+            // Filtre par recherche textuelle globale
+            const matchSearch = !searchVal || 
+                                item['mot'].toLowerCase().includes(searchVal) ||
+                                item['sens'].toLowerCase().includes(searchVal) ||
+                                item['dérivés français'].toLowerCase().includes(searchVal);
+
+            if (matchNature && matchDeclension && matchSearch) {
+                visibleCount++;
+                
+                const row = document.createElement('div');
+                row.className = 'arow';
+                row.innerHTML = `
+                    <div class="anum">${visibleCount}</div>
+                    <div class="word-latin">${item['mot']}</div>
+                    <div class="word-meaning">${item['sens'] || '<i>non renseigné</i>'}</div>
+                    <div class="word-derivatives">${item['dérivés français'] || '-'}</div>
+                `;
+                archiveList.appendChild(row);
+            }
+        });
+
+        countBadge.textContent = visibleCount;
+    }
+
+    searchInput.addEventListener('input', updateList);
+    natureSelect.addEventListener('change', updateList);
+    declensionSelect.addEventListener('change', updateList);
+
+    // Initialisation en chargeant le fichier externe
+    window.addEventListener('DOMContentLoaded', loadExternalCSV);
+</script>
+
+</body>
+</html>
