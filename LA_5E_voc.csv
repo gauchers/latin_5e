@@ -1,0 +1,138 @@
+Mot,Nature,Déclinaison,Traduction en français,Mot français dérivé
+"rosa, ae, f.",nom,D1,rose,"rosier, roseraie"
+"patria, ae, f.",nom,D1,"patrie, pays natal","patriote, compatriote"
+"familia, ae, f.",nom,D1,famille,"familial, familiarité"
+"schola, ae, f.",nom,D1,école,"scolaire, scolarité"
+"natura, ae, f.",nom,D1,nature,"naturel, naturaliser"
+"littera, ae, f.",nom,D1,lettre (écriture),"littéraire, littérature"
+"causa, ae, f.",nom,D1,"cause, motif","causalité, causer"
+"forma, ae, f.",nom,D1,"forme, beauté","formel, formater"
+"fortuna, ae, f.",nom,D1,"fortune, chance, destin","fortuné, infortune"
+"gloria, ae, f.",nom,D1,gloire,"glorieux, glorifier"
+"terra, ae, f.",nom,D1,terre,"terrestre, terrain, déterrer"
+"vita, ae, f.",nom,D1,vie,"vital, vitamine, vitalité"
+"aqua, ae, f.",nom,D1,eau,"aquatique, aquarium, aqueduc"
+"porta, ae, f.",nom,D1,porte,"portail, portier"
+"silva, ae, f.",nom,D1,"forêt, bois","sylvestre, sylviculture"
+"femina, ae, f.",nom,D1,femme,"féminin, féminité"
+"via, ae, f.",nom,D1,"voie, chemin","viable, dévier, voyage"
+"arena, ae, f.",nom,D1,"sable, arène","arénicole, arène"
+"herba, ae, f.",nom,D1,herbe,"herbivore, herbier"
+"corona, ae, f.",nom,D1,couronne,"couronnement, coronaire"
+"copia, ae, f.",nom,D1,"abondance, quantité","copieux, copier (reproduire en nombre)"
+"flamma, ae, f.",nom,D1,flamme,"inflammable, flamboyer"
+"fama, ae, f.",nom,D1,"réputation, rumeur","fameux, diffamer"
+"insula, ae, f.",nom,D1,île,"insulaire, péninsule, isoler"
+"mensa, ae, f.",nom,D1,table,commensal (qui mange à la même table)
+"poena, ae, f.",nom,D1,"peine, châtiment","pénal, punition"
+"ripa, ae, f.",nom,D1,"rive, rivage","riverain, arriver (toucher la rive)"
+"ruina, ae, f.",nom,D1,"ruine, écroulement","ruineux, ruiner"
+"tumba, ae, f.",nom,D1,tombe,tombeau
+"cura, ae, f.",nom,D1,"soin, souci","cure, curateur, curatif"
+"fabula, ae, f.",nom,D1,"récit, fable, histoire","fabuleux, fabuler, fabulation"
+"bestia, ae, f.",nom,D1,"bête, animal","bestial, bestiaire"
+"memoria, ae, f.",nom,D1,mémoire,"mémoriel, mémoriser"
+"musica, ae, f.",nom,D1,musique,"musical, musicien"
+"poeta, ae, m.",nom,D1,poète,"poétique, poésie"
+"nauta, ae, m.",nom,D1,marin,"nautique, astronaute"
+"pirata, ae, m.",nom,D1,pirate,piraterie
+"industria, ae, f.",nom,D1,"activité, application, industrie","industriel, industrieux"
+"umbra, ae, f.",nom,D1,ombre,"ombrage, parapluie, sombre"
+"stella, ae, f.",nom,D1,étoile,"stellaire, constellation"
+"luna, ae, f.",nom,D1,lune,"lunaire, lunatique"
+"victoria, ae, f.",nom,D1,victoire,victorieux
+"pugna, ae, f.",nom,D1,"combat, bataille","pugnacité, répugner"
+"lingua, ae, f.",nom,D1,langue,"linguistique, bilingue"
+"columna, ae, f.",nom,D1,colonne,colonnade
+"liturgia, ae, f.",nom,D1,liturgie,liturgique
+"machina, ae, f.",nom,D1,"machine, engin","machinerie, machination"
+"medicina, ae, f.",nom,D1,médecine,"médical, médicament"
+"provincia, ae, f.",nom,D1,province,provincial
+"amicus, i, m.",nom,D2,ami,"amical, amitié"
+"populus, i, m.",nom,D2,peuple,"populaire, population"
+"deus, i, m.",nom,D2,dieu,"déifier, divin"
+"filius, ii, m.",nom,D2,fils,"filial, affiliation"
+"animus, i, m.",nom,D2,"esprit, âme, courage","animer, animal, animosité"
+"locus, i, m.",nom,D2,"lieu, endroit","local, localiser, locomotive"
+"annus, i, m.",nom,D2,"an, année","annuel, anniversaire"
+"modus, i, m.",nom,D2,"manière, mesure, mode","modérer, modifier, modalité"
+"murus, i, m.",nom,D2,mur,"mural, murer"
+"equus, i, m.",nom,D2,cheval,"équestre, équitation"
+"liber, libri, m.",nom,D2,livre,"librairie, libelle"
+"ager, agri, m.",nom,D2,champ,"agricole, agriculture"
+"puer, pueri, m.",nom,D2,"enfant, garçon","puéril, puériculture"
+"magister, magistri, m.",nom,D2,maître (d'école),"magistral, magistrat"
+"socius, ii, m.",nom,D2,"compagnon, allié","social, société, associer"
+"captivus, i, m.",nom,D2,"prisonnier, captif","captivité, captiver"
+"servus, i, m.",nom,D2,"esclave, serviteur","service, servitude, asservir"
+"discipulus, i, m.",nom,D2,"élève, disciple","discipline, disciplinaire"
+"oculus, i, m.",nom,D2,œil,"oculaire, oculiste"
+"medicus, i, m.",nom,D2,médecin,"médical, médicament"
+"ventus, i, m.",nom,D2,vent,"ventilateur, venteux"
+"fluvius, ii, m.",nom,D2,fleuve,fluvial
+"numerus, i, m.",nom,D2,"nombre, numéro","numérique, innombrable"
+"hortus, i, m.",nom,D2,jardin,horticulture
+"templum, i, n.",nom,D2,temple,templier
+"forum, i, n.",nom,D2,"place publique, forum","forain, forum"
+"verbum, i, n.",nom,D2,"mot, parole","verbal, verbe, proverbe"
+"periculum, i, n.",nom,D2,"danger, risque, péril",périlleux
+"consilium, ii, n.",nom,D2,"projet, conseil, décision","conseiller, concilier"
+"imperium, ii, n.",nom,D2,"pouvoir, empire, ordre","impérial, impératif"
+"regnum, i, n.",nom,D2,"règne, royaume","régner, royal"
+"caelum, i, n.",nom,D2,ciel,céleste
+"bellum, i, n.",nom,D2,guerre,"belliqueux, belligérant"
+"donum, i, n.",nom,D2,"don, cadeau","donateur, donation"
+"beneficium, ii, n.",nom,D2,bienfait,"bénéfice, bénéficiaire"
+"vinum, i, n.",nom,D2,vin,"viticole, vinaigre"
+"signum, i, n.",nom,D2,"signe, signal, enseigne","signature, signaler"
+"monstrum, i, n.",nom,D2,"prodige, monstre","monstrueux, monstruosité"
+"studium, ii, n.",nom,D2,"goût, étude, zèle","studieux, étudiant"
+"officium, ii, n.",nom,D2,"devoir, fonction, office","officiel, officier"
+"aurum, i, n.",nom,D2,or,aurifère
+"ferrum, i, n.",nom,D2,fer,"ferroviaire, ferrure"
+"arma, orum, n. pl.",nom,D2,armes,"armement, armure"
+"castra, orum, n. pl.",nom,D2,camp militaire,castral (château)
+"odium, ii, n.",nom,D2,haine,odieux
+"silentium, ii, n.",nom,D2,silence,silencieux
+"exilium, ii, n.",nom,D2,exil,exilé
+"votum, i, n.",nom,D2,"vœu, promesse","voter, votif"
+"ingenium, ii, n.",nom,D2,"intelligence, génie","ingénieux, ingénieur"
+et,conjonction de coordination,,et,
+"que (enclitique, collé à la fin d'un mot)",conjonction de coordination,,"et, et aussi",
+ac / atque,conjonction de coordination,,"et, et d'autre part, et qui plus est",
+sed,conjonction de coordination,,mais,
+at,conjonction de coordination,,"mais, par contre, d'un autre côté",
+autem,conjonction de coordination,,"or, mais, quant à",
+vero,conjonction de coordination,,"mais, en vérité, or",
+nam,conjonction de coordination,,"car, en effet",
+enim,conjonction de coordination,,"car, en effet",
+neque / nec,conjonction de coordination,,"et ne... pas, ni, et non plus",
+aut,conjonction de coordination,,"ou, ou bien (choix exclusif)",
+vel,conjonction de coordination,,"ou, ou bien, même (choix libre)",
+sive / seu,conjonction de coordination,,"ou si, soit... soit",
+ergo,conjonction de coordination / adverbe,,"donc, par conséquent",
+igitur,conjonction de coordination,,"donc, en conséquence",
+in (+ acc. ; + abl.),préposition,—,"dans (direction +acc), dans (lieu où l'on est +abl), sur","injecter, intérieur, international"
+ad (+ acc.),préposition,—,"vers, près de, à, pour","admettre, adjacent, addition"
+ab / a (+ abl.),préposition,—,"de, depuis, par (éloignement ou agent)","absence, abstenir, aborigène"
+ex / e (+ abl.),préposition,—,"de, hors de, à partir de","exporter, exclure, extérieur"
+per (+ acc.),préposition,—,"à travers, pendant, par l'intermédiaire de","perforer, permanent, persister"
+cum (+ abl.),préposition,—,"avec (accompagnement, manière)","collaborer, compatriote, communion"
+de (+ abl.),préposition,—,"de, du haut de, au sujet de","descendre, déporter, description"
+inter (+ acc.),préposition,—,"entre, parmi, durant","intermède, interagir, intervalle"
+sub (+ acc. ; + abl.),préposition,—,"sous (direction +acc), sous (lieu où l'on est +abl)","submerger, subordonné, substructure"
+pro (+ abl.),préposition,—,"devant, à la place de, pour, en faveur de","proposer, progrès, procuration"
+apud (+ acc.),préposition,—,"chez, auprès de",apud
+sine (+ abl.),préposition,—,sans,"sans, sincère"
+contra (+ acc.),préposition,—,"contre, en face de","contraire, contradiction, contraindre"
+ante (+ acc.),préposition,—,"avant, devant (temps et espace)","antérieur, antécédent, antichambre"
+post (+ acc.),préposition,—,"après, derrière","postérieur, post-scriptum, posthume"
+trans (+ acc.),préposition,—,"au-delà de, à travers","transporter, transiter, translucide"
+super (+ acc. ; + abl.),préposition,—,"sur, au-dessus de","supérieur, superficie, supermarché"
+extra (+ acc.),préposition,—,en dehors de,"extraordinaire, extraterrestre, extraire"
+intra (+ acc.),préposition,—,à l'intérieur de,"intraveineux, intramuros, intranet"
+supra (+ acc.),préposition,—,au-dessus de,"supranational, suprême"
+infra (+ acc.),préposition,—,au-dessous de,"infrarouge, infrastructure"
+ultra (+ acc.),préposition,—,au-delà de,"ultrason, ultraviolet, outrage"
+prae (+ abl.),préposition,—,"devant, avant, en raison de","préface, préférer, préhistoire"
+ob (+ acc.),préposition,—,"à cause de, devant","objectif, obstacle, obliquer"
