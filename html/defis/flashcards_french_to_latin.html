@@ -381,7 +381,7 @@
     // Charger le CSV externe
     async function loadVocab() {
         try {
-            const response = await fetch('../csv/LA_5E_voc.csv');
+            const response = await fetch('../../csv/LA_5E_voc.csv');
             if (!response.ok) {
                 throw new Error(`Fichier CSV introuvable (code ${response.status})`);
             }
@@ -426,7 +426,7 @@
             console.error(error);
             const statusDiv = document.getElementById('status');
             statusDiv.className = 'status-message error';
-            statusDiv.innerHTML = `Impossible de charger le fichier CSV (<code>../csv/LA_5E_voc.csv</code>).<br>Détail : ${error.message}`;
+            statusDiv.innerHTML = `Impossible de charger le fichier CSV (<code>../../csv/LA_5E_voc.csv</code>).<br>Détail : ${error.message}`;
         }
     }
 
