@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur et Validateur Verbal Latin</title>
+  <style>
+    /* Récupération stricte de votre charte CSS */
+    :root {
+      --brick: #9C2B1F; 
+      --brick-dark: #6E1F16; 
+      --gold: #C9A227; 
+      --cream: #FDF6EC; 
+      --parch: #F1E4D0; 
+      --parch-dark: #E4D2B4; 
+      --umber: #2B1B12; 
+      --ink: #3A2A1F; 
+      --ink-soft: #7A6A56; 
+      --good: #3F7A52; 
+      --bad: #B23A2E; 
+      
+      --serif: 'Cormorant Garamond', Georgia, serif; 
+      --sans: 'Inter', system-ui, sans-serif;
+
+      /* Attribution des 4 couleurs de briques */
+      --col-radical: var(--brick);
+      --col-voyelle: var(--gold);
+      --col-morpheme: var(--good);
+      --col-terminaison: var(--umber);
+    }
+
+    body { 
+      margin: 0; 
+      padding: 2rem;
+      font-family: var(--sans); 
+      color: var(--ink); 
+      background: var(--parch); 
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .quiz-head { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-start; 
+      margin-bottom: 1.4rem; 
+      gap: 1rem;
+    }
+
+    .quiz-title { 
+      font-family: var(--serif); 
+      font-weight: 700; 
+      font-size: 1.8rem; 
+      color: var(--brick-dark); 
+      margin: 0; 
+    }
+
+    .quiz-sub { 
+      font-size: 0.95rem; 
+      color: var(--ink-soft); 
+      margin: 0.2rem 0 0; 
+    }
+
+    /* ZONE DE RENDER & ANALYSE */
+    .render-zone {
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      border: 2px solid var(--parch-dark);
+    }
+
+    .render-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--ink-soft);
+      font-weight: 700;
+    }
+
+    /* Le mot assemblé sous forme de briques colorées */
+    .word-builder {
+      display: flex;
+      gap: 4px;
+      font-family: var(--serif);
+      font-size: 2.5rem;
+      font-weight: 700;
+      min-height: 4rem;
+      align-items: center;
+    }
+
+    .part {
+      padding: 0.1rem 0.8rem;
+      border-radius: 6px;
+      color: var(--cream);
+      transition: all 0.2s ease;
+    }
+    .part:empty {
+      display: none;
+    }
+    .part.p-rad { background: var(--col-radical); }
+    .part.p-voy { background: var(--col-voyelle); }
+    .part.p-mor { background: var(--col-morpheme); }
+    .part.p-term { background: var(--col-terminaison); }
+
+    /* Verdict de validation */
+    .verdict-box {
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    .verdict-box.valid {
+      background: #EAF3EC;
+      color: var(--good);
+      border: 1px dashed var(--good);
+    }
+    .verdict-box.invalid {
+      background: #FBEAE8;
+      color: var(--bad);
+      border: 1px dashed var(--bad);
+    }
+
+    /* GRILLE EN 4 COLONNES */
+    .builder-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .builder-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 550px) {
+      .builder-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .q-block { 
+      background: var(--cream); 
+      border-radius: 12px; 
+      padding: 1.1rem; 
+      border: 2px solid var(--parch-dark);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .q-text { 
+      font-weight: 700; 
+      font-size: 0.95rem; 
+      margin: 0 0 0.9rem; 
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--parch);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Puces d'identification de couleur */
+    .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-rad { background: var(--col-radical); }
+    .dot-voy { background: var(--col-voyelle); }
+    .dot-mor { background: var(--col-morpheme); }
+    .dot-term { background: var(--col-terminaison); }
+
+    .q-opts { 
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem; 
+      overflow-y: auto;
+    }
+
+    .q-opt { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.6rem; 
+      padding: 0.5rem 0.7rem; 
+      border-radius: 8px; 
+      border: 2px solid var(--parch-dark); 
+      font-size: 0.88rem; 
+      cursor: pointer; 
+      background: var(--cream); 
+      user-select: none;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .q-opt:hover { 
+      border-color: var(--gold); 
+    }
+
+    .q-opt input { 
+      accent-color: var(--brick); 
+      width: 15px; 
+      height: 15px; 
+      margin: 0;
+    }
+
+    /* Style sélectionné hérité */
+    .q-opt.selected {
+      border-color: var(--brick);
+      background: var(--parch);
+      font-weight: 700;
+    }
+
+    /* Bouton Réinitialiser */
+    .quiz-actions { 
+      display: flex; 
+      justify-content: center;
+      margin-top: 1.5rem; 
+    }
+    .btn { 
+      border: none; 
+      border-radius: 10px; 
+      padding: 0.75rem 1.8rem; 
+      font-weight: 700; 
+      font-size: 0.9rem; 
+      cursor: pointer; 
+      transition: background 0.2s;
+    }
+    .btn.ghost { 
+      background: transparent; 
+      color: var(--brick); 
+      border: 2px solid var(--brick); 
+    }
+    .btn.ghost:hover { 
+      background: var(--brick); 
+      color: var(--cream); 
+    }
+    .btn.primary {
+      background: var(--brick);
+      color: var(--cream);
+    }
+    .btn.primary:hover {
+      background: var(--brick-dark);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ONGLETS DE MODE */
+    .mode-tabs {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
+    .mode-tab {
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 999px;
+      border: 2px solid var(--parch-dark);
+      background: var(--cream);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+    }
+    .mode-tab:hover {
+      border-color: var(--gold);
+      color: var(--ink);
+    }
+    .mode-tab.active {
+      background: var(--brick);
+      border-color: var(--brick);
+      color: var(--cream);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* TABLEAU DE SCORE */
+    .score-board {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--parch-dark);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      margin-bottom: 1.2rem;
+      font-size: 0.9rem;
+    }
+    .score-board .score-value {
+      font-weight: 700;
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      color: var(--brick-dark);
+    }
+    .score-board button {
+      background: none;
+      border: 1px solid var(--ink-soft);
+      color: var(--ink-soft);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .score-board button:hover {
+      border-color: var(--brick);
+      color: var(--brick);
+    }
+
+    /* PROMPT DE DÉFI (question) */
+    .challenge-prompt {
+      background: var(--cream);
+      border: 2px dashed var(--gold);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .challenge-prompt-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--ink-soft);
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .challenge-prompt-fr {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .challenge-prompt-lat {
+      font-family: var(--serif);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--brick-dark);
+    }
+
+    .challenge-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+    }
+
+    /* QCM pour le mode LAT -> FR */
+    .mcq-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.7rem;
+    }
+    .mcq-opt {
+      text-align: left;
+      background: var(--cream);
+      border: 2px solid var(--parch-dark);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+    }
+    .mcq-opt:hover:not(:disabled) {
+      border-color: var(--gold);
+      background: var(--parch);
+    }
+    .mcq-opt.correct {
+      border-color: var(--good);
+      background: #EAF3EC;
+      color: var(--good);
+      font-weight: 700;
+    }
+    .mcq-opt.wrong {
+      border-color: var(--bad);
+      background: #FBEAE8;
+      color: var(--bad);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <div class="quiz-head">
+    <div>
+      <h1 class="quiz-title">Laboratoire Verbal Latin</h1>
+      <p class="quiz-sub">Assemblez vos briques de conjugaison latine et vérifiez si elles sont correctes (Indicatif présent, imparfait et futur d'amo, habeo, lego, capio, audio).</p>
+    </div>
+  </div>
+
+  <div class="mode-tabs">
+    <button type="button" class="mode-tab active" data-mode="libre" onclick="switchMode('libre')">🔧 Labo libre</button>
+    <button type="button" class="mode-tab" data-mode="fr2lat" onclick="switchMode('fr2lat')">🇫🇷 → 🏛️ Défi : Français → Latin</button>
+    <button type="button" class="mode-tab" data-mode="lat2fr" onclick="switchMode('lat2fr')">🏛️ → 🇫🇷 Défi : Latin → Français</button>
+  </div>
+
+  <div id="panel-libre" class="mode-panel">
+
+  <div class="render-zone">
+    <div class="render-label">Forme assemblée</div>
+    
+    <div class="word-builder">
+      <span class="part p-rad" id="res-radical"></span>
+      <span class="part p-voy" id="res-voyelle"></span>
+      <span class="part p-mor" id="res-morpheme"></span>
+      <span class="part p-term" id="res-terminaison"></span>
+    </div>
+
+    <div class="verdict-box invalid" id="verdict">
+      Veuillez sélectionner au moins un radical et une terminaison.
+    </div>
+  </div>
+
+  <form id="verbal-form" onchange="processVerification()">
+    <div class="builder-grid">
+      
+      <div class="q-block">
+        <div class="q-text">
+          <span class="color-dot dot-rad"></span>
+          <span>1. Radical</span>
+        </div>
+        <div class="q-opts">
+          <label class="q-opt"><input type="radio" name="radical" value="am" checked> am- (1)</label>
+          <label class="q-opt"><input type="radio" name="radical" value="ama"> ama- (1)</label>
+          <label class="q-opt"><input type="radio" name="radical" value="habe"> habe- (2)</label>
+          <label class="q-opt"><input type="radio" name="radical" value="leg"> leg- (3)</label>
+          <label class="q-opt"><input type="radio" name="radical" value="capi"> capi- (3M)</label>
+          <label class="q-opt"><input type="radio" name="radical" value="audi"> audi- (4)</label>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-text">
+          <span class="color-dot dot-voy"></span>
+          <span>2. Voyelle</span>
+        </div>
+        <div class="q-opts">
+          <label class="q-opt"><input type="radio" name="voyelle" value="" checked> (aucune)</label>
+          <label class="q-opt"><input type="radio" name="voyelle" value="i"> -i-</label>
+          <label class="q-opt"><input type="radio" name="voyelle" value="e"> -e-</label>
+          <label class="q-opt"><input type="radio" name="voyelle" value="u"> -u-</label>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-text">
+          <span class="color-dot dot-mor"></span>
+          <span>3. Morphème</span>
+        </div>
+        <div class="q-opts">
+          <label class="q-opt"><input type="radio" name="morpheme" value="" checked> (vide)</label>
+          <label class="q-opt"><input type="radio" name="morpheme" value="ba"> -ba- (Impf.)</label>
+          <label class="q-opt"><input type="radio" name="morpheme" value="eba"> -eba- (Impf.)</label>
+          <label class="q-opt"><input type="radio" name="morpheme" value="bi"> -bi- (Fut.)</label>
+          <label class="q-opt"><input type="radio" name="morpheme" value="b"> -b- (Fut.)</label>
+          <label class="q-opt"><input type="radio" name="morpheme" value="e"> -e- (Fut.)</label>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-text">
+          <span class="color-dot dot-term"></span>
+          <span>4. Terminaison</span>
+        </div>
+        <div class="q-opts">
+          <label class="q-opt"><input type="radio" name="terminaison" value="o"> -o (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="m"> -m (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="s"> -s (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="t"> -t (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="mus"> -mus (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="tis"> -tis (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="nt"> -nt (Act.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="r"> -r (Pass.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="ris"> -ris (Pass.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="tur"> -tur (Pass.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="mur"> -mur (Pass.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="mini"> -mini (Pass.)</label>
+          <label class="q-opt"><input type="radio" name="terminaison" value="ntur"> -ntur (Pass.)</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="quiz-actions">
+      <button type="button" class="btn ghost" onclick="resetForm()">Réinitialiser le labo</button>
+    </div>
+  </form>
+
+  </div><!-- /panel-libre -->
+
+  <!-- ================= PANNEAU DÉFI : FRANÇAIS -> LATIN ================= -->
+  <div id="panel-fr2lat" class="mode-panel hidden">
+
+    <div class="score-board">
+      <span id="fr2lat-progress">Question 1 / 10 — Score : 0 / 0</span>
+      <button type="button" onclick="startFr2LatSession()">🔄 Nouvelle série de 10</button>
+    </div>
+
+    <div id="fr2lat-game">
+
+      <div class="challenge-prompt">
+        <div class="challenge-prompt-label">Construisez la forme latine correspondant à :</div>
+        <div class="challenge-prompt-fr" id="fr2lat-question"></div>
+      </div>
+
+      <div class="render-zone">
+        <div class="render-label">Votre réponse</div>
+        <div class="word-builder">
+          <span class="part p-rad" id="c-res-radical"></span>
+          <span class="part p-voy" id="c-res-voyelle"></span>
+          <span class="part p-mor" id="c-res-morpheme"></span>
+          <span class="part p-term" id="c-res-terminaison"></span>
+        </div>
+        <div class="verdict-box invalid hidden" id="fr2lat-verdict"></div>
+      </div>
+
+      <form id="fr2lat-form" onchange="updateFr2LatPreview()">
+        <div class="builder-grid">
+
+          <div class="q-block">
+            <div class="q-text">
+              <span class="color-dot dot-rad"></span>
+              <span>1. Radical</span>
+            </div>
+            <div class="q-opts">
+              <label class="q-opt"><input type="radio" name="c-radical" value="am"> am- (1)</label>
+              <label class="q-opt"><input type="radio" name="c-radical" value="ama"> ama- (1)</label>
+              <label class="q-opt"><input type="radio" name="c-radical" value="habe"> habe- (2)</label>
+              <label class="q-opt"><input type="radio" name="c-radical" value="leg"> leg- (3)</label>
+              <label class="q-opt"><input type="radio" name="c-radical" value="capi"> capi- (3M)</label>
+              <label class="q-opt"><input type="radio" name="c-radical" value="audi"> audi- (4)</label>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-text">
+              <span class="color-dot dot-voy"></span>
+              <span>2. Voyelle</span>
+            </div>
+            <div class="q-opts">
+              <label class="q-opt"><input type="radio" name="c-voyelle" value="" checked> (aucune)</label>
+              <label class="q-opt"><input type="radio" name="c-voyelle" value="i"> -i-</label>
+              <label class="q-opt"><input type="radio" name="c-voyelle" value="e"> -e-</label>
+              <label class="q-opt"><input type="radio" name="c-voyelle" value="u"> -u-</label>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-text">
+              <span class="color-dot dot-mor"></span>
+              <span>3. Morphème</span>
+            </div>
+            <div class="q-opts">
+              <label class="q-opt"><input type="radio" name="c-morpheme" value="" checked> (vide)</label>
+              <label class="q-opt"><input type="radio" name="c-morpheme" value="ba"> -ba- (Impf.)</label>
+              <label class="q-opt"><input type="radio" name="c-morpheme" value="eba"> -eba- (Impf.)</label>
+              <label class="q-opt"><input type="radio" name="c-morpheme" value="bi"> -bi- (Fut.)</label>
+              <label class="q-opt"><input type="radio" name="c-morpheme" value="b"> -b- (Fut.)</label>
+              <label class="q-opt"><input type="radio" name="c-morpheme" value="e"> -e- (Fut.)</label>
+            </div>
+          </div>
+
+          <div class="q-block">
+            <div class="q-text">
+              <span class="color-dot dot-term"></span>
+              <span>4. Terminaison</span>
+            </div>
+            <div class="q-opts">
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="o"> -o (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="m"> -m (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="s"> -s (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="t"> -t (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="mus"> -mus (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="tis"> -tis (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="nt"> -nt (Act.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="r"> -r (Pass.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="ris"> -ris (Pass.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="tur"> -tur (Pass.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="mur"> -mur (Pass.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="mini"> -mini (Pass.)</label>
+              <label class="q-opt"><input type="radio" name="c-terminaison" value="ntur"> -ntur (Pass.)</label>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="challenge-actions">
+          <button type="button" class="btn primary" id="fr2lat-check-btn" onclick="checkFr2Lat()">Vérifier ma réponse</button>
+          <button type="button" class="btn ghost hidden" id="fr2lat-next-btn" onclick="nextFr2LatQuestion()">Question suivante →</button>
+        </div>
+      </form>
+
+    </div><!-- /fr2lat-game -->
+
+    <div id="fr2lat-summary" class="challenge-prompt hidden">
+      <div class="challenge-prompt-label">Série terminée</div>
+      <div class="challenge-prompt-fr" id="fr2lat-summary-text"></div>
+      <div class="challenge-actions">
+        <button type="button" class="btn primary" onclick="startFr2LatSession()">🔄 Recommencer une série de 10</button>
+      </div>
+    </div>
+
+  </div><!-- /panel-fr2lat -->
+
+  <!-- ================= PANNEAU DÉFI : LATIN -> FRANÇAIS ================= -->
+  <div id="panel-lat2fr" class="mode-panel hidden">
+
+    <div class="score-board">
+      <span id="lat2fr-progress">Question 1 / 10 — Score : 0 / 0</span>
+      <button type="button" onclick="startLat2FrSession()">🔄 Nouvelle série de 10</button>
+    </div>
+
+    <div id="lat2fr-game">
+
+      <div class="challenge-prompt">
+        <div class="challenge-prompt-label">Quelle est l'analyse grammaticale de cette forme ?</div>
+        <div class="challenge-prompt-lat" id="lat2fr-question"></div>
+      </div>
+
+      <div class="mcq-grid" id="lat2fr-options"></div>
+
+      <div class="verdict-box invalid hidden" id="lat2fr-translation"></div>
+
+      <div class="challenge-actions">
+        <button type="button" class="btn ghost hidden" id="lat2fr-next-btn" onclick="nextLat2FrQuestion()">Question suivante →</button>
+      </div>
+
+    </div><!-- /lat2fr-game -->
+
+    <div id="lat2fr-summary" class="challenge-prompt hidden">
+      <div class="challenge-prompt-label">Série terminée</div>
+      <div class="challenge-prompt-fr" id="lat2fr-summary-text"></div>
+      <div class="challenge-actions">
+        <button type="button" class="btn primary" onclick="startLat2FrSession()">🔄 Recommencer une série de 10</button>
+      </div>
+    </div>
+
+  </div><!-- /panel-lat2fr -->
+
+</div>
+
+<script>
+  // Base de données exhaustive des formes latines valides pour la comparaison
+  const dictionary = {
+    // --- AMO (1) ---
+    "amo": "1re pers. singulier, Présent de l'Indicatif Actif de AMO (1re conj.)",
+    "amas": "2e pers. singulier, Présent de l'Indicatif Actif de AMO (1re conj.)",
+    "amat": "3e pers. singulier, Présent de l'Indicatif Actif de AMO (1re conj.)",
+    "amamus": "1re pers. pluriel, Présent de l'Indicatif Actif de AMO (1re conj.)",
+    "amatis": "2e pers. pluriel, Présent de l'Indicatif Actif de AMO (1re conj.)",
+    "amant": "3e pers. pluriel, Présent de l'Indicatif Actif de AMO (1re conj.)",
+    "amor": "1re pers. singulier, Présent de l'Indicatif Passif de AMO (1re conj.)",
+    "amaris": "2e pers. singulier, Présent de l'Indicatif Passif de AMO (1re conj.)",
+    "amatur": "3e pers. singulier, Présent de l'Indicatif Passif de AMO (1re conj.)",
+    "amamur": "1re pers. pluriel, Présent de l'Indicatif Passif de AMO (1re conj.)",
+    "amamini": "2e pers. pluriel, Présent de l'Indicatif Passif de AMO (1re conj.)",
+    "amantur": "3e pers. pluriel, Présent de l'Indicatif Passif de AMO (1re conj.)",
+    "amabam": "1re pers. singulier, Imparfait de l'Indicatif Actif de AMO (1re conj.)",
+    "amabas": "2e pers. singulier, Imparfait de l'Indicatif Actif de AMO (1re conj.)",
+    "amabat": "3e pers. singulier, Imparfait de l'Indicatif Actif de AMO (1re conj.)",
+    "amabamus": "1re pers. pluriel, Imparfait de l'Indicatif Actif de AMO (1re conj.)",
+    "amabatis": "2e pers. pluriel, Imparfait de l'Indicatif Actif de AMO (1re conj.)",
+    "amabant": "3e pers. pluriel, Imparfait de l'Indicatif Actif de AMO (1re conj.)",
+    "amabar": "1re pers. singulier, Imparfait de l'Indicatif Passif de AMO (1re conj.)",
+    "amabaris": "2e pers. singulier, Imparfait de l'Indicatif Passif de AMO (1re conj.)",
+    "amabatur": "3e pers. singulier, Imparfait de l'Indicatif Passif de AMO (1re conj.)",
+    "amabamur": "1re pers. pluriel, Imparfait de l'Indicatif Passif de AMO (1re conj.)",
+    "amabamini": "2e pers. pluriel, Imparfait de l'Indicatif Passif de AMO (1re conj.)",
+    "amabantur": "3e pers. pluriel, Imparfait de l'Indicatif Passif de AMO (1re conj.)",
+    "amabo": "1re pers. singulier, Futur de l'Indicatif Actif de AMO (1re conj.)",
+    "amabis": "2e pers. singulier, Futur de l'Indicatif Actif de AMO (1re conj.)",
+    "amabit": "3e pers. singulier, Futur de l'Indicatif Actif de AMO (1re conj.)",
+    "amabimus": "1re pers. pluriel, Futur de l'Indicatif Actif de AMO (1re conj.)",
+    "amabitis": "2e pers. pluriel, Futur de l'Indicatif Actif de AMO (1re conj.)",
+    "amabunt": "3e pers. pluriel, Futur de l'Indicatif Actif de AMO (1re conj.)",
+    "amabor": "1re pers. singulier, Futur de l'Indicatif Passif de AMO (1re conj.)",
+    "amaberis": "2e pers. singulier, Futur de l'Indicatif Passif de AMO (1re conj.)",
+    "amabitur": "3e pers. singulier, Futur de l'Indicatif Passif de AMO (1re conj.)",
+    "amabimur": "1re pers. pluriel, Futur de l'Indicatif Passif de AMO (1re conj.)",
+    "amabimini": "2e pers. pluriel, Futur de l'Indicatif Passif de AMO (1re conj.)",
+    "amabuntur": "3e pers. pluriel, Futur de l'Indicatif Passif de AMO (1re conj.)",
+
+    // --- HABEO (2) ---
+    "habeo": "1re pers. singulier, Présent de l'Indicatif Actif de HABEO (2e conj.)",
+    "habes": "2e pers. singulier, Présent de l'Indicatif Actif de HABEO (2e conj.)",
+    "habet": "3e pers. singulier, Présent de l'Indicatif Actif de HABEO (2e conj.)",
+    "habemus": "1re pers. pluriel, Présent de l'Indicatif Actif de HABEO (2e conj.)",
+    "habetis": "2e pers. pluriel, Présent de l'Indicatif Actif de HABEO (2e conj.)",
+    "habent": "3e pers. pluriel, Présent de l'Indicatif Actif de HABEO (2e conj.)",
+    "habeor": "1re pers. singulier, Présent de l'Indicatif Passif de HABEO (2e conj.)",
+    "haberis": "2e pers. singulier, Présent de l'Indicatif Passif de HABEO (2e conj.)",
+    "habetur": "3e pers. singulier, Présent de l'Indicatif Passif de HABEO (2e conj.)",
+    "habemur": "1re pers. pluriel, Présent de l'Indicatif Passif de HABEO (2e conj.)",
+    "habemini": "2e pers. pluriel, Présent de l'Indicatif Passif de HABEO (2e conj.)",
+    "habentur": "3e pers. pluriel, Présent de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebam": "1re pers. singulier, Imparfait de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebas": "2e pers. singulier, Imparfait de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebat": "3e pers. singulier, Imparfait de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebamus": "1re pers. pluriel, Imparfait de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebatis": "2e pers. pluriel, Imparfait de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebant": "3e pers. pluriel, Imparfait de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebar": "1re pers. singulier, Imparfait de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebaris": "2e pers. singulier, Imparfait de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebatur": "3e pers. singulier, Imparfait de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebamur": "1re pers. pluriel, Imparfait de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebamini": "2e pers. pluriel, Imparfait de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebantur": "3e pers. pluriel, Imparfait de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebo": "1re pers. singulier, Futur de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebis": "2e pers. singulier, Futur de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebit": "3e pers. singulier, Futur de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebimus": "1re pers. pluriel, Futur de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebitis": "2e pers. pluriel, Futur de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebunt": "3e pers. pluriel, Futur de l'Indicatif Actif de HABEO (2e conj.)",
+    "habebor": "1re pers. singulier, Futur de l'Indicatif Passif de HABEO (2e conj.)",
+    "habeberis": "2e pers. singulier, Futur de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebitur": "3e pers. singulier, Futur de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebimur": "1re pers. pluriel, Futur de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebimini": "2e pers. pluriel, Futur de l'Indicatif Passif de HABEO (2e conj.)",
+    "habebuntur": "3e pers. pluriel, Futur de l'Indicatif Passif de HABEO (2e conj.)",
+
+    // --- LEGO (3) ---
+    "lego": "1re pers. singulier, Présent de l'Indicatif Actif de LEGO (3e conj.)",
+    "legis": "2e pers. singulier, Présent de l'Indicatif Actif de LEGO (3e conj.)",
+    "legit": "3e pers. singulier, Présent de l'Indicatif Actif de LEGO (3e conj.)",
+    "legimus": "1re pers. pluriel, Présent/Parfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legitis": "2e pers. pluriel, Présent de l'Indicatif Actif de LEGO (3e conj.)",
+    "legunt": "3e pers. pluriel, Présent de l'Indicatif Actif de LEGO (3e conj.)",
+    "legor": "1re pers. singulier, Présent de l'Indicatif Passif de LEGO (3e conj.)",
+    "legeris": "2e pers. singulier, Présent / Futur de l'Indicatif Passif de LEGO (3e conj.)",
+    "legitur": "3e pers. singulier, Présent de l'Indicatif Passif de LEGO (3e conj.)",
+    "legimur": "1re pers. pluriel, Présent de l'Indicatif Passif de LEGO (3e conj.)",
+    "legimini": "2e pers. pluriel, Présent de l'Indicatif Passif de LEGO (3e conj.)",
+    "leguntur": "3e pers. pluriel, Présent de l'Indicatif Passif de LEGO (3e conj.)",
+    "legebam": "1re pers. singulier, Imparfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legebas": "2e pers. singulier, Imparfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legebat": "3e pers. singulier, Imparfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legebamus": "1re pers. pluriel, Imparfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legebatis": "2e pers. pluriel, Imparfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legebant": "3e pers. pluriel, Imparfait de l'Indicatif Actif de LEGO (3e conj.)",
+    "legebar": "1re pers. singulier, Imparfait de l'Indicatif Passif de LEGO (3e conj.)",
+    "legebaris": "2e pers. singulier, Imparfait de l'Indicatif Passif de LEGO (3e conj.)",
+    "legebatur": "3e pers. singulier, Imparfait de l'Indicatif Passif de LEGO (3e conj.)",
+    "legebamur": "1re pers. pluriel, Imparfait de l'Indicatif Passif de LEGO (3e conj.)",
+    "legebamini": "2e pers. pluriel, Imparfait de l'Indicatif Passif de LEGO (3e conj.)",
+    "legebantur": "3e pers. pluriel, Imparfait de l'Indicatif Passif de LEGO (3e conj.)",
+    "legam": "1re pers. singulier, Futur de l'Indicatif Actif de LEGO (3e conj.)",
+    "leges": "2e pers. singulier, Futur de l'Indicatif Actif de LEGO (3e conj.)",
+    "leget": "3e pers. singulier, Futur de l'Indicatif Actif de LEGO (3e conj.)",
+    "legemus": "1re pers. pluriel, Futur de l'Indicatif Actif de LEGO (3e conj.)",
+    "legetis": "2e pers. pluriel, Futur de l'Indicatif Actif de LEGO (3e conj.)",
+    "legent": "3e pers. pluriel, Futur de l'Indicatif Actif de LEGO (3e conj.)",
+    "legar": "1re pers. singulier, Futur de l'Indicatif Passif de LEGO (3e conj.)",
+    "legetur": "3e pers. singulier, Futur de l'Indicatif Passif de LEGO (3e conj.)",
+    "legemur": "1re pers. pluriel, Futur de l'Indicatif Passif de LEGO (3e conj.)",
+    "legemini": "2e pers. pluriel, Futur de l'Indicatif Passif de LEGO (3e conj.)",
+    "legentur": "3e pers. pluriel, Futur de l'Indicatif Passif de LEGO (3e conj.)",
+
+    // --- CAPIO (3M) ---
+    "capio": "1re pers. singulier, Présent de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capis": "2e pers. singulier, Présent de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capit": "3e pers. singulier, Présent de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capimus": "1re pers. pluriel, Présent de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capitis": "2e pers. pluriel, Présent de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiunt": "3e pers. pluriel, Présent de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capior": "1re pers. singulier, Présent de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "caperis": "2e pers. singulier, Présent / Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capitur": "3e pers. singulier, Présent de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capimur": "1re pers. pluriel, Présent de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capimini": "2e pers. pluriel, Présent de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiuntur": "3e pers. pluriel, Présent de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiebam": "1re pers. singulier, Imparfait de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiebas": "2e pers. singulier, Imparfait de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiebat": "3e pers. singulier, Imparfait de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiebamus": "1re pers. pluriel, Imparfait de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiebatis": "2e pers. pluriel, Imparfait de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiebant": "3e pers. pluriel, Imparfait de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiebar": "1re pers. singulier, Imparfait de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiebaris": "2e pers. singulier, Imparfait de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiebatur": "3e pers. singulier, Imparfait de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiebamur": "1re pers. pluriel, Imparfait de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiebamini": "2e pers. pluriel, Imparfait de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiebantur": "3e pers. pluriel, Imparfait de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiam": "1re pers. singulier, Futur de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capies": "2e pers. singulier, Futur de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiet": "3e pers. singulier, Futur de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiemus": "1re pers. pluriel, Futur de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capietis": "2e pers. pluriel, Futur de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capient": "3e pers. pluriel, Futur de l'Indicatif Actif de CAPIO (3e conj. mixte)",
+    "capiar": "1re pers. singulier, Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capieris": "2e pers. singulier, Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capietur": "3e pers. singulier, Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiemur": "1re pers. pluriel, Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capiemini": "2e pers. pluriel, Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+    "capientur": "3e pers. pluriel, Futur de l'Indicatif Passif de CAPIO (3e conj. mixte)",
+
+    // --- AUDIO (4) ---
+    "audio": "1re pers. singulier, Présent de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audis": "2e pers. singulier, Présent de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audit": "3e pers. singulier, Présent de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audimus": "1re pers. pluriel, Présent de l'Indicatif Actif de AUDIO (4e conj.)",
+    "auditis": "2e pers. pluriel, Présent de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiunt": "3e pers. pluriel, Présent de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audior": "1re pers. singulier, Présent de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiris": "2e pers. singulier, Présent de l'Indicatif Passif de AUDIO (4e conj.)",
+    "auditur": "3e pers. singulier, Présent de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audimur": "1re pers. pluriel, Présent de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audimini": "2e pers. pluriel, Présent de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiuntur": "3e pers. pluriel, Présent de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiebam": "1re pers. singulier, Imparfait de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiebas": "2e pers. singulier, Imparfait de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiebat": "3e pers. singulier, Imparfait de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiebamus": "1re pers. pluriel, Imparfait de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiebatis": "2e pers. pluriel, Imparfait de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiebant": "3e pers. pluriel, Imparfait de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiebar": "1re pers. singulier, Imparfait de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiebaris": "2e pers. singulier, Imparfait de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiebatur": "3e pers. singulier, Imparfait de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiebamur": "1re pers. pluriel, Imparfait de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiebamini": "2e pers. pluriel, Imparfait de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiebantur": "3e pers. pluriel, Imparfait de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiam": "1re pers. singulier, Futur de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audies": "2e pers. singulier, Futur de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiet": "3e pers. singulier, Futur de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiemus": "1re pers. pluriel, Futur de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audietis": "2e pers. pluriel, Futur de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audient": "3e pers. pluriel, Futur de l'Indicatif Actif de AUDIO (4e conj.)",
+    "audiar": "1re pers. singulier, Futur de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audieris": "2e pers. singulier, Futur de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audietur": "3e pers. singulier, Futur de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiemur": "1re pers. pluriel, Futur de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audiemini": "2e pers. pluriel, Futur de l'Indicatif Passif de AUDIO (4e conj.)",
+    "audientur": "3e pers. pluriel, Futur de l'Indicatif Passif de AUDIO (4e conj.)"
+  };
+
+  function processVerification() {
+    const form = document.getElementById('verbal-form');
+    
+    // Récupération des briques sélectionnées
+    const radical = form.elements['radical'].value;
+    const voyelle = form.elements['voyelle'].value;
+    const morpheme = form.elements['morpheme'].value;
+    const terminaison = form.elements['terminaison'].value;
+
+    // Mise à jour de l'affichage haut
+    document.getElementById('res-radical').textContent = radical;
+    document.getElementById('res-voyelle').textContent = voyelle;
+    document.getElementById('res-morpheme').textContent = morpheme;
+    document.getElementById('res-terminaison').textContent = terminaison;
+
+    // Concaténation pour comparaison
+    const fullForm = radical + voyelle + morpheme + terminaison;
+    const verdictEl = document.getElementById('verdict');
+
+    // Vérification visuelle pour les classes "selected" sur les labels
+    const inputs = form.querySelectorAll('input[type="radio"]');
+    inputs.forEach(input => {
+      const label = input.closest('.q-opt');
+      if (input.checked) {
+        label.classList.add('selected');
+      } else {
+        label.classList.remove('selected');
+      }
+    });
+
+    // Comparaison avec les tableaux de conjugaison
+    if (!radical || !terminaison) {
+      verdictEl.className = "verdict-box invalid";
+      verdictEl.textContent = "Sélectionnez au moins un radical et une terminaison.";
+    } else if (dictionary[fullForm]) {
+      verdictEl.className = "verdict-box valid";
+      const translation = typeof getTranslation === 'function' ? getTranslation(fullForm) : null;
+      const translationLine = translation ? ` — « ${translation} »` : '';
+      verdictEl.innerHTML = `✓ <strong>"${fullForm}"</strong> existe ! <br> <small>${dictionary[fullForm]}${translationLine}</small>`;
+    } else {
+      verdictEl.className = "verdict-box invalid";
+      verdictEl.innerHTML = `✗ <strong>"${fullForm}"</strong> n'existe pas ou contient une erreur de liaison.`;
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('verbal-form').reset();
+    processVerification();
+  }
+
+  // ======================================================================
+  //  TRADUCTIONS FRANÇAISES (sens du verbe conjugué, pas juste l'analyse)
+  // ======================================================================
+
+  const conjugations = {
+    AMO: {
+      actif: {
+        present:   ["j'aime","tu aimes","il/elle aime","nous aimons","vous aimez","ils/elles aiment"],
+        imparfait: ["j'aimais","tu aimais","il/elle aimait","nous aimions","vous aimiez","ils/elles aimaient"],
+        futur:     ["j'aimerai","tu aimeras","il/elle aimera","nous aimerons","vous aimerez","ils/elles aimeront"]
+      },
+      passif: {
+        present:   ["je suis aimé(e)","tu es aimé(e)","il/elle est aimé(e)","nous sommes aimé(e)s","vous êtes aimé(e)s","ils/elles sont aimé(e)s"],
+        imparfait: ["j'étais aimé(e)","tu étais aimé(e)","il/elle était aimé(e)","nous étions aimé(e)s","vous étiez aimé(e)s","ils/elles étaient aimé(e)s"],
+        futur:     ["je serai aimé(e)","tu seras aimé(e)","il/elle sera aimé(e)","nous serons aimé(e)s","vous serez aimé(e)s","ils/elles seront aimé(e)s"]
+      }
+    },
+    HABEO: {
+      actif: {
+        present:   ["j'ai","tu as","il/elle a","nous avons","vous avez","ils/elles ont"],
+        imparfait: ["j'avais","tu avais","il/elle avait","nous avions","vous aviez","ils/elles avaient"],
+        futur:     ["j'aurai","tu auras","il/elle aura","nous aurons","vous aurez","ils/elles auront"]
+      },
+      passif: {
+        present:   ["je suis tenu(e)","tu es tenu(e)","il/elle est tenu(e)","nous sommes tenu(e)s","vous êtes tenu(e)s","ils/elles sont tenu(e)s"],
+        imparfait: ["j'étais tenu(e)","tu étais tenu(e)","il/elle était tenu(e)","nous étions tenu(e)s","vous étiez tenu(e)s","ils/elles étaient tenu(e)s"],
+        futur:     ["je serai tenu(e)","tu seras tenu(e)","il/elle sera tenu(e)","nous serons tenu(e)s","vous serez tenu(e)s","ils/elles seront tenu(e)s"]
+      }
+    },
+    LEGO: {
+      actif: {
+        present:   ["je lis","tu lis","il/elle lit","nous lisons","vous lisez","ils/elles lisent"],
+        imparfait: ["je lisais","tu lisais","il/elle lisait","nous lisions","vous lisiez","ils/elles lisaient"],
+        futur:     ["je lirai","tu liras","il/elle lira","nous lirons","vous lirez","ils/elles liront"]
+      },
+      passif: {
+        present:   ["je suis lu(e)","tu es lu(e)","il/elle est lu(e)","nous sommes lu(e)s","vous êtes lu(e)s","ils/elles sont lu(e)s"],
+        imparfait: ["j'étais lu(e)","tu étais lu(e)","il/elle était lu(e)","nous étions lu(e)s","vous étiez lu(e)s","ils/elles étaient lu(e)s"],
+        futur:     ["je serai lu(e)","tu seras lu(e)","il/elle sera lu(e)","nous serons lu(e)s","vous serez lu(e)s","ils/elles seront lu(e)s"]
+      }
+    },
+    CAPIO: {
+      actif: {
+        present:   ["je prends","tu prends","il/elle prend","nous prenons","vous prenez","ils/elles prennent"],
+        imparfait: ["je prenais","tu prenais","il/elle prenait","nous prenions","vous preniez","ils/elles prenaient"],
+        futur:     ["je prendrai","tu prendras","il/elle prendra","nous prendrons","vous prendrez","ils/elles prendront"]
+      },
+      passif: {
+        present:   ["je suis pris(e)","tu es pris(e)","il/elle est pris(e)","nous sommes pris(es)","vous êtes pris(es)","ils/elles sont pris(es)"],
+        imparfait: ["j'étais pris(e)","tu étais pris(e)","il/elle était pris(e)","nous étions pris(es)","vous étiez pris(es)","ils/elles étaient pris(es)"],
+        futur:     ["je serai pris(e)","tu seras pris(e)","il/elle sera pris(e)","nous serons pris(es)","vous serez pris(es)","ils/elles seront pris(es)"]
+      }
+    },
+    AUDIO: {
+      actif: {
+        present:   ["j'entends","tu entends","il/elle entend","nous entendons","vous entendez","ils/elles entendent"],
+        imparfait: ["j'entendais","tu entendais","il/elle entendait","nous entendions","vous entendiez","ils/elles entendaient"],
+        futur:     ["j'entendrai","tu entendras","il/elle entendra","nous entendrons","vous entendrez","ils/elles entendront"]
+      },
+      passif: {
+        present:   ["je suis entendu(e)","tu es entendu(e)","il/elle est entendu(e)","nous sommes entendu(e)s","vous êtes entendu(e)s","ils/elles sont entendu(e)s"],
+        imparfait: ["j'étais entendu(e)","tu étais entendu(e)","il/elle était entendu(e)","nous étions entendu(e)s","vous étiez entendu(e)s","ils/elles étaient entendu(e)s"],
+        futur:     ["je serai entendu(e)","tu seras entendu(e)","il/elle sera entendu(e)","nous serons entendu(e)s","vous serez entendu(e)s","ils/elles seront entendu(e)s"]
+      }
+    }
+  };
+
+  function parseAnalysis(analysis) {
+    const m = analysis.match(/^(\d)(?:re|e) pers\. (singulier|pluriel), (Présent(?:\/Parfait)?|Imparfait|Futur) de l'Indicatif (Actif|Passif) de (AMO|HABEO|LEGO|CAPIO|AUDIO)/);
+    if (!m) return null;
+    const personNum = parseInt(m[1], 10);
+    const number = m[2];
+    const tense = m[3].startsWith('Présent') ? 'present' : (m[3] === 'Imparfait' ? 'imparfait' : 'futur');
+    const voice = m[4] === 'Actif' ? 'actif' : 'passif';
+    const verb = m[5];
+    const idx = (personNum - 1) + (number === 'pluriel' ? 3 : 0);
+    return { verb, voice, tense, idx };
+  }
+
+  function getTranslation(latinKey) {
+    const analysis = dictionary[latinKey];
+    if (!analysis) return null;
+    const parsed = parseAnalysis(analysis);
+    if (!parsed) return null;
+    const forms = conjugations[parsed.verb] && conjugations[parsed.verb][parsed.voice] && conjugations[parsed.verb][parsed.voice][parsed.tense];
+    return forms ? forms[parsed.idx] : null;
+  }
+
+  // ======================================================================
+  //  MODE DÉFI (auto-entraînement) — séries de 10 questions aléatoires
+  // ======================================================================
+
+  const SESSION_SIZE = 10;
+  const allDictKeys = Object.keys(dictionary);
+
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function generateQuestionSet(n) {
+    return shuffleArray(allDictKeys).slice(0, n);
+  }
+
+  function switchMode(mode) {
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.mode === mode);
+    });
+    document.querySelectorAll('.mode-panel').forEach(panel => panel.classList.add('hidden'));
+    document.getElementById('panel-' + mode).classList.remove('hidden');
+
+    if (mode === 'fr2lat' && fr2latQueue.length === 0) startFr2LatSession();
+    if (mode === 'lat2fr' && lat2frQueue.length === 0) startLat2FrSession();
+  }
+
+  // ---------- Défi Français -> Latin ----------
+
+  let fr2latQueue = [];
+  let fr2latIndex = 0;
+  let fr2latScore = 0;
+  let currentFr2LatTarget = null;
+
+  function startFr2LatSession() {
+    fr2latQueue = generateQuestionSet(SESSION_SIZE);
+    fr2latIndex = 0;
+    fr2latScore = 0;
+    document.getElementById('fr2lat-game').classList.remove('hidden');
+    document.getElementById('fr2lat-summary').classList.add('hidden');
+    loadFr2LatQuestion();
+  }
+
+  function updateFr2LatProgress() {
+    document.getElementById('fr2lat-progress').textContent =
+      `Question ${Math.min(fr2latIndex + 1, SESSION_SIZE)} / ${SESSION_SIZE} — Score : ${fr2latScore} / ${fr2latIndex}`;
+  }
+
+  function updateFr2LatPreview() {
+    const form = document.getElementById('fr2lat-form');
+    document.getElementById('c-res-radical').textContent = form.elements['c-radical'] ? form.elements['c-radical'].value : '';
+    document.getElementById('c-res-voyelle').textContent = form.elements['c-voyelle'].value;
+    document.getElementById('c-res-morpheme').textContent = form.elements['c-morpheme'].value;
+    document.getElementById('c-res-terminaison').textContent = form.elements['c-terminaison'] ? form.elements['c-terminaison'].value : '';
+  }
+
+  function loadFr2LatQuestion() {
+    if (fr2latIndex >= fr2latQueue.length) {
+      showFr2LatSummary();
+      return;
+    }
+
+    const latin = fr2latQueue[fr2latIndex];
+    currentFr2LatTarget = latin;
+
+    document.getElementById('fr2lat-question').textContent = dictionary[latin];
+
+    const form = document.getElementById('fr2lat-form');
+    form.reset();
+    form.querySelectorAll('input[type="radio"]').forEach(el => el.disabled = false);
+    updateFr2LatPreview();
+
+    const verdict = document.getElementById('fr2lat-verdict');
+    verdict.className = 'verdict-box invalid hidden';
+    verdict.innerHTML = '';
+
+    document.getElementById('fr2lat-check-btn').classList.remove('hidden');
+    document.getElementById('fr2lat-next-btn').classList.add('hidden');
+
+    updateFr2LatProgress();
+  }
+
+  function checkFr2Lat() {
+    const form = document.getElementById('fr2lat-form');
+    const radical = form.elements['c-radical'] ? form.elements['c-radical'].value : '';
+    const voyelle = form.elements['c-voyelle'].value;
+    const morpheme = form.elements['c-morpheme'].value;
+    const terminaison = form.elements['c-terminaison'] ? form.elements['c-terminaison'].value : '';
+    const fullForm = radical + voyelle + morpheme + terminaison;
+
+    const verdict = document.getElementById('fr2lat-verdict');
+    verdict.classList.remove('hidden');
+
+    const translation = getTranslation(currentFr2LatTarget);
+    const translationLine = translation ? `<br><small>Traduction : « ${translation} »</small>` : '';
+
+    if (radical && terminaison && fullForm === currentFr2LatTarget) {
+      verdict.className = 'verdict-box valid';
+      verdict.innerHTML = `✓ Bravo ! <strong>"${fullForm}"</strong> est bien la forme attendue.${translationLine}`;
+      fr2latScore++;
+    } else {
+      verdict.className = 'verdict-box invalid';
+      verdict.innerHTML = `✗ Votre réponse était <strong>"${fullForm || '(vide)'}"</strong>. La forme attendue était <strong>"${currentFr2LatTarget}"</strong>.${translationLine}`;
+    }
+
+    fr2latIndex++;
+    updateFr2LatProgress();
+
+    form.querySelectorAll('input[type="radio"]').forEach(el => el.disabled = true);
+    document.getElementById('fr2lat-check-btn').classList.add('hidden');
+    document.getElementById('fr2lat-next-btn').classList.remove('hidden');
+  }
+
+  function nextFr2LatQuestion() {
+    loadFr2LatQuestion();
+  }
+
+  function showFr2LatSummary() {
+    document.getElementById('fr2lat-game').classList.add('hidden');
+    const summary = document.getElementById('fr2lat-summary');
+    summary.classList.remove('hidden');
+    document.getElementById('fr2lat-summary-text').textContent =
+      `Score final : ${fr2latScore} / ${SESSION_SIZE} 🎉`;
+  }
+
+  // ---------- Défi Latin -> Français ----------
+
+  let lat2frQueue = [];
+  let lat2frIndex = 0;
+  let lat2frScore = 0;
+  let currentLat2FrTarget = null;
+
+  function startLat2FrSession() {
+    lat2frQueue = generateQuestionSet(SESSION_SIZE);
+    lat2frIndex = 0;
+    lat2frScore = 0;
+    document.getElementById('lat2fr-game').classList.remove('hidden');
+    document.getElementById('lat2fr-summary').classList.add('hidden');
+    loadLat2FrQuestion();
+  }
+
+  function updateLat2FrProgress() {
+    document.getElementById('lat2fr-progress').textContent =
+      `Question ${Math.min(lat2frIndex + 1, SESSION_SIZE)} / ${SESSION_SIZE} — Score : ${lat2frScore} / ${lat2frIndex}`;
+  }
+
+  function loadLat2FrQuestion() {
+    if (lat2frIndex >= lat2frQueue.length) {
+      showLat2FrSummary();
+      return;
+    }
+
+    const latin = lat2frQueue[lat2frIndex];
+    const french = dictionary[latin];
+    currentLat2FrTarget = { latin, french };
+
+    document.getElementById('lat2fr-question').textContent = latin;
+
+    const distractors = new Set();
+    let guard = 0;
+    while (distractors.size < 3 && guard < 200) {
+      const candidateKey = allDictKeys[Math.floor(Math.random() * allDictKeys.length)];
+      const candidate = dictionary[candidateKey];
+      if (candidate !== french) distractors.add(candidate);
+      guard++;
+    }
+
+    const options = shuffleArray([french, ...distractors]);
+
+    const container = document.getElementById('lat2fr-options');
+    container.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mcq-opt';
+      btn.textContent = opt;
+      btn.onclick = () => checkLat2Fr(btn, opt === french);
+      container.appendChild(btn);
+    });
+
+    const translationBox = document.getElementById('lat2fr-translation');
+    translationBox.className = 'verdict-box invalid hidden';
+    translationBox.innerHTML = '';
+
+    document.getElementById('lat2fr-next-btn').classList.add('hidden');
+
+    updateLat2FrProgress();
+  }
+
+  function checkLat2Fr(clickedBtn, isCorrect) {
+    const buttons = document.querySelectorAll('#lat2fr-options .mcq-opt');
+    buttons.forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent === currentLat2FrTarget.french) {
+        btn.classList.add('correct');
+      }
+    });
+
+    if (isCorrect) {
+      clickedBtn.classList.add('correct');
+      lat2frScore++;
+    } else {
+      clickedBtn.classList.add('wrong');
+    }
+
+    const translation = getTranslation(currentLat2FrTarget.latin);
+    if (translation) {
+      const translationBox = document.getElementById('lat2fr-translation');
+      translationBox.className = 'verdict-box valid';
+      translationBox.innerHTML = `Traduction de <strong>"${currentLat2FrTarget.latin}"</strong> : « ${translation} »`;
+    }
+
+    lat2frIndex++;
+    updateLat2FrProgress();
+
+    document.getElementById('lat2fr-next-btn').classList.remove('hidden');
+  }
+
+  function nextLat2FrQuestion() {
+    loadLat2FrQuestion();
+  }
+
+  function showLat2FrSummary() {
+    document.getElementById('lat2fr-game').classList.add('hidden');
+    const summary = document.getElementById('lat2fr-summary');
+    summary.classList.remove('hidden');
+    document.getElementById('lat2fr-summary-text').textContent =
+      `Score final : ${lat2frScore} / ${SESSION_SIZE} 🎉`;
+  }
+
+  // Initialisation au lancement
+  window.onload = processVerification;
+</script>
+
+</body>
+</html>
